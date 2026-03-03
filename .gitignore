@@ -1,0 +1,43 @@
+# Compiled binaries
+*.o
+*.obj
+*.exe
+*.out
+*.a
+*.so
+*.dll
+*.dylib
+
+# Build binaries
+build/
+out/
+bin/
+lib/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# clangd
+.cache/
+
+# vcpkg
+vcpkg_installed/
+
+# artifacts
+core
+core.*
+*.dSYM/
+
+# VSC
+.vscode
+
+# OS 
+.DS_Store
+Thumbs.db
+desktop.ini
