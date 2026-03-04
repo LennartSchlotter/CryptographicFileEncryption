@@ -7,9 +7,13 @@
 *.so
 *.dll
 *.dylib
+*.pdb
+*.ilk
+*.exp
 
 # Build binaries
 build/
+build-*/
 out/
 bin/
 lib/
