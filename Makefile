@@ -17,10 +17,10 @@ release:
 	./$(RELEASE_DIR)/$(BINARY)
 
 format:
-	clang-format -i src/*.cpp include/*.hpp
+	find src -type f \( -name "*.cpp" -o -name "*.h" \) -exec clang-format -i {} \;
 
 lint:
-	clang-tidy -p $(BUILD_DIR) src/*.cpp --warnings-as-errors="*"
+	find src -type f -name "*.cpp" -exec clang-tidy -p $(BUILD_DIR) {} --warnings-as-errors="*" \;
 
 check:
 	cppcheck --enable=all --std=c++23 --suppress=missingIncludeSystem src/
