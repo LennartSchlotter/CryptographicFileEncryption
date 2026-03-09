@@ -35,6 +35,7 @@ target_link_options(${EXE_NAME} PRIVATE
 target_sources(${EXE_NAME} PRIVATE
     src/main.cpp
     src/handler.cpp
+    src/logger.cpp
     src/modules/encrypt.cpp
     src/modules/decrypt.cpp
 )

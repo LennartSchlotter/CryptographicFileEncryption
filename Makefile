@@ -17,7 +17,7 @@ release:
 	./$(RELEASE_DIR)/$(BINARY)
 
 format:
-	find src -type f \( -name "*.cpp" -o -name "*.h" \) -exec clang-format -i {} \;
+	find src -type f \( -name "*.cpp" -o -name "*.h" \) -exec sh -c 'clang-format "{}" | diff -u --color=always "{}" - || true' \;
 
 lint:
 	find src -type f -name "*.cpp" -exec clang-tidy -p $(BUILD_DIR) {} --warnings-as-errors="*" \;

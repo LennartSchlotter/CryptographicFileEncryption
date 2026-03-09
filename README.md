@@ -2,7 +2,7 @@
 >This project is still in development and as such not feature complete, tested or optimized. Changes are incoming daily.
 
 # Cryptographic File Encryption Tool
-A CLI tool that encrypts and decrypts a file using a password. Standalone C++ project primarily serving as a learning opportunity for both the language as well as cryptographic basics. 
+A CLI tool that supports encrypting and decrypting of files. Standalone C++ project primarily serving as a learning opportunity for both the language as well as cryptographic basics. 
 
 ## Features
 
