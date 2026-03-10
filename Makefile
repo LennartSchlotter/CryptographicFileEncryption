@@ -5,7 +5,7 @@ BINARY := bin/CFE
 .PHONY: run build release format lint check clean
 
 run: build
-	./$(BUILD_DIR)/$(BINARY)
+	./$(BUILD_DIR)/$(BINARY) $(ARGS)
 
 build:
 	cmake -S . -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Debug 2>&1 | head -20
