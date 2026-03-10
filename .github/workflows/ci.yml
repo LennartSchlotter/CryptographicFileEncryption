@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Build and Lint
+    runs-on: ${{ matrix.config.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { name: "Ubuntu Clang", os: ubuntu-24.04, compiler: clang, build-type: Debug }
+    
+    steps:
+      - name: Checkout
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            clang \
+            clang-tidy \
+            clang-format \
+            cppcheck \
+            cmake \
+            ninja-build \
+            git
+
+      - name: Setup MSVC environment
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Cache build directory
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/build
+          key: ${{ runner.os }}-build-${{ matrix.config.build-type }}-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json', 'src/**', 'include/**') }}
+          restore-keys: ${{ runner.os }}-build-${{ matrix.config.build-type }}-
+
+      - name: CMake
+        run: |
+            cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -G Ninja
+        
+      - name: Build (Debug)
+        run: cmake --build build --config Debug --parallel 4
+      
+      - name: Cppcheck
+        run: |
+            cppcheck --enable=all --std=c++23 \
+              --suppress=missingIncludeSystem \
+              --error-exitcode=1 \
+              src/
+      
+      - name: clang-tidy
+        run: |
+            find src -type f -name "*.cpp" -exec \
+              clang-tidy -p build {} --warnings-as-errors=* \;
+
+      - name: clang-format
+        run: |
+          set -e
+          find src -type f \( -name "*.cpp" -o -name "*.h" \) -print0 \
+            | xargs -0 -I{} sh -c \
+              'clang-format --dry-run --Werror "{}" > /dev/null || { echo "Formatting error in {}"; exit 1; }'
