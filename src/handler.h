@@ -1,12 +1,25 @@
-#ifndef HANDLER_H
+#ifndef CFE_HANDLER_H
 
-#define HANDLER_H
+#define CFE_HANDLER_H
 
+#include <expected>
+#include <optional>
 #include <span>
-struct Request;
-struct Result;
+#include <unordered_map>
+#include <vector>
 
-void parse(std::span<const char* const> args);
-void dispatch(const Request& request);
+struct Request {
+    std::string function;
+    std::optional<std::unordered_map<std::string, std::vector<std::string>>> flags;
+    std::string file_path;
+};
+
+struct Result {
+    std::string message;
+    bool success = false;
+};
+
+std::expected<void, Result> parse(std::span<const char* const> args);
+std::expected<void, Result> dispatch(const Request& request);
 
 #endif

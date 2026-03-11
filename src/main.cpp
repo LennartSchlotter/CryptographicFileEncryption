@@ -1,8 +1,23 @@
+#include <cstdlib>
+#include <span>
+
 #include "handler.h"
+#include "logger.h"
 
 int main(int argc, char *argv[]) {
-    std::span args{argv, static_cast<std::size_t>(argc)};
-    parse(args);
+    const std::span args{argv, static_cast<std::size_t>(argc)};
 
-    return 0;
+    if (argc <= 2) {
+        logging::log(Result{.message = "Too few arguments passed", .success = false});
+        return EXIT_FAILURE;
+    }
+
+    auto result = parse(args);
+    if (!result) {
+        if (!result.error().success) {
+            return EXIT_FAILURE;
+        }
+    }
+
+    return EXIT_SUCCESS;
 }
