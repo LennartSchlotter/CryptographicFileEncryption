@@ -29,9 +29,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            clang \
-            clang-tidy \
-            clang-format \
+            clang-18 \
+            clang-tidy-18 \
+            clang-format-18 \
             cppcheck \
             cmake \
             ninja-build \
@@ -49,8 +49,10 @@ jobs:
           restore-keys: ${{ runner.os }}-build-${{ matrix.config.build-type }}-
 
       - name: CMake
-        run: |
-            cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -G Ninja
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang
+      
+      - name: Debug compile commands
+        run: head -20 build/compile_commands.json
         
       - name: Build (Debug)
         run: cmake --build build --config Debug --parallel 4
@@ -62,4 +64,4 @@ jobs:
         run: make lint
 
       - name: clang-format
-        run: make tidy
+        run: make format
