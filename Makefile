@@ -8,7 +8,7 @@ run: build
 	./$(BUILD_DIR)/$(BINARY) $(ARGS)
 
 build:
-	cmake -S . -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Debug 2>&1 | head -20
+	cmake -S . -B $(BUILD_DIR) -DCMAKE_BUILD_TYPE=Debug 2>&1
 	cmake --build $(BUILD_DIR)
 
 release:
