@@ -45,3 +45,6 @@ core.*
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Custom assets
+assets/

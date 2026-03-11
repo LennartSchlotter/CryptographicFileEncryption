@@ -23,7 +23,10 @@ lint:
 	find src -type f -name "*.cpp" -exec clang-tidy -p $(BUILD_DIR) {} --warnings-as-errors="*" \;
 
 check:
-	cppcheck --enable=all --std=c++23 --suppress=missingIncludeSystem src/
+	cppcheck --enable=all --std=c++23 --inconclusive \
+			--suppress=missingIncludeSystem \
+			--suppressions-list=suppress-checkers.txt \
+			-I src/ src/
 
 clean:
 	rm -rf $(BUILD_DIR) $(RELEASE_DIR)
