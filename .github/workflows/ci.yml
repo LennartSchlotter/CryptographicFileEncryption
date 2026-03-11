@@ -45,6 +45,21 @@ jobs:
           key: ${{ runner.os }}-build-${{ matrix.config.build-type }}-${{ hashFiles('CMakeLists.txt', 'CMakePresets.json', 'src/**', 'include/**') }}
           restore-keys: ${{ runner.os }}-build-${{ matrix.config.build-type }}-
 
+      - name: Diagnose directory structure
+        run: |
+          pwd
+          echo "Top-level contents:"
+          ls -la
+          echo ""
+          ls -la CMakeLists.txt 2>/dev/null || echo "not found"
+          echo ""
+          echo "Looking for nested repo-name folder:"
+          ls -la CryptographicFileEncryption 2>/dev/null || echo "no nested folder"
+          if [ -d "CryptographicFileEncryption" ]; then
+            echo "Nested contents:"
+            ls -la CryptographicFileEncryption
+          fi
+
       - name: CMake
         run: |
             cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -G Ninja
