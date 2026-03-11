@@ -49,10 +49,12 @@ jobs:
           restore-keys: ${{ runner.os }}-build-${{ matrix.config.build-type }}-
 
       - name: CMake
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -G Ninja -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_COMPILER=clang++-18 -DCMAKE_C_COMPILER=clang-18 -G Ninja
       
-      - name: Debug compile commands
-        run: head -20 build/compile_commands.json
+      - name: Debug versions
+        run: |
+          clang++ --version
+          clang-tidy --version
         
       - name: Build (Debug)
         run: cmake --build build --config Debug --parallel 4
