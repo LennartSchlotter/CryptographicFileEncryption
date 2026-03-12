@@ -31,7 +31,7 @@ std::expected<void, Result> parse(std::span<const char* const> args) {
         if (!flag.starts_with('-')) {
             const Result result{.message = "Expected flag, got positional: " + flag,
                                 .success = false};
-            logging::log(result);
+            logging::log_result(result);
             return std::unexpected(result);
         }
 
@@ -67,7 +67,7 @@ std::expected<void, Result> dispatch(const Request& request) {
 
     if (func == dispatch_table.end()) {
         const Result result{.message = "Tool not found", .success = false};
-        logging::log(result);
+        logging::log_result(result);
         return std::unexpected(result);
     }
     auto result = func->second(request);

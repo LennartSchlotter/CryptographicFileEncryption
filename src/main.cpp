@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
     const std::span args{argv, static_cast<std::size_t>(argc)};
 
     if (argc <= 2) {
-        logging::log(Result{.message = "Too few arguments passed", .success = false});
+        logging::log_result(Result{.message = "Too few arguments passed", .success = false});
         return EXIT_FAILURE;
     }
 

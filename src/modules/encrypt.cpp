@@ -17,7 +17,7 @@ Result encrypt(const Request& request) {
     if (!file.is_open()) {
         const Result result{.message = "Failed to open file at " + request.file_path,
                             .success = false};
-        logging::log(result);
+        logging::log_result(result);
         return result;
     }
 
