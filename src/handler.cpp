@@ -70,6 +70,6 @@ std::expected<void, Result> dispatch(const Request& request) {
         logging::log_result(result);
         return std::unexpected(result);
     }
-    auto result = func->second(request);
+    Result result = func->second(request);
     return {};
 }

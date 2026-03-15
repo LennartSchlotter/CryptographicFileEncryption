@@ -1,3 +1,4 @@
+#include <__expected/expected.h>
 #include <cstdlib>
 #include <span>
 
@@ -12,7 +13,7 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    auto result = parse(args);
+    std::expected<void, Result> result = parse(args);
     if (!result) {
         if (!result.error().success) {
             return EXIT_FAILURE;
