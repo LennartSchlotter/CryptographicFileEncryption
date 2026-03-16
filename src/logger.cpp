@@ -9,12 +9,15 @@ namespace logging {
 void log_result(const Result& result) {
     if (result.success) {
         std::cout << result.message << "\n";
+    } else {
+        std::cout << "Error: " << result.message << "\n";
     }
-    std::cout << "Error: " << result.message << "\n";
 }
 
-void log(const std::string& message) {
-    std::cout << "[LOG] " << message;
+void log(const std::string& message, Severity severity = DEBUG) {
+    switch (severity) {
+        default: std::cout << message << "\n";
+    }
 }
 
 }  // namespace logging
