@@ -37,6 +37,7 @@ target_sources(${EXE_NAME} PRIVATE
     src/handler.cpp
     src/logger.cpp
     src/helper/password.cpp
+    src/helper/secure_allocator.cpp
     src/modules/encrypt.cpp
     src/modules/decrypt.cpp
 )
