@@ -1,5 +1,7 @@
 #include "handler.h"
 
+#include <__expected/unexpected.h>
+
 #include <cstddef>
 #include <expected>
 #include <functional>
@@ -71,5 +73,10 @@ std::expected<void, Result> dispatch(const Request& request) {
         return std::unexpected(result);
     }
     const Result result = func->second(request);
+
+    if (!result.success) {
+        return std::unexpected(result);
+    }
+
     return {};
 }

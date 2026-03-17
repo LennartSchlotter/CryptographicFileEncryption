@@ -16,7 +16,8 @@ void log_result(const Result& result) {
 
 void log(const std::string& message, Severity severity = DEBUG) {
     switch (severity) {
-        default: std::cout << message << "\n";
+        default:
+            std::cout << message << "\n";
     }
 }
 
