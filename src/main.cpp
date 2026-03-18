@@ -1,4 +1,6 @@
 #include <__expected/expected.h>
+#include <sodium.h>
+#include <sodium/core.h>
 
 #include <cstdlib>
 #include <span>
@@ -11,6 +13,11 @@ int main(int argc, char *argv[]) {
 
     if (argc <= 2) {
         logging::log_result(Result{.message = "Too few arguments passed", .success = false});
+        return EXIT_FAILURE;
+    }
+
+    if (sodium_init() < 0) {
+        logging::log_result(Result{.message = "libsodium initialization failed.", .success = false});
         return EXIT_FAILURE;
     }
 

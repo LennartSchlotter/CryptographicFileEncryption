@@ -2,6 +2,9 @@ set(EXE_NAME CFE)
 cmake_minimum_required(VERSION 3.28)
 project(${EXE_NAME} LANGUAGES CXX)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(sodium REQUIRED IMPORTED_TARGET libsodium)
+
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -44,6 +47,10 @@ target_sources(${EXE_NAME} PRIVATE
 
 target_include_directories(${EXE_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(${EXE_NAME} PRIVATE
+    PkgConfig::sodium
 )
 
 ################# Libraries ##########################
