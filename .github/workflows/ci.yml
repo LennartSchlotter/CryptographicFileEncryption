@@ -37,7 +37,9 @@ jobs:
             ninja-build \
             git \
             libc++-18-dev \
-            libc++abi-18-dev
+            libc++abi-18-dev \
+            pkg-config \
+            libsodium-dev
           sudo ln -sf /usr/bin/clang-format-18 /usr/local/bin/clang-format
           sudo ln -sf /usr/bin/clang-tidy-18 /usr/local/bin/clang-tidy
 
