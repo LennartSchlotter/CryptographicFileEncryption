@@ -63,3 +63,5 @@ target_link_libraries(${EXE_NAME} PRIVATE
 #   target_link_libraries(${PROJECT_NAME} PRIVATE SQLite::SQLite3)
 #
 #   vcpkg search <name>
+#
+#   Remember to update the CI dependency install!
