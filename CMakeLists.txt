@@ -4,6 +4,7 @@ project(${EXE_NAME} LANGUAGES CXX)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(sodium REQUIRED IMPORTED_TARGET libsodium)
+pkg_check_modules(argon2 REQUIRED IMPORTED_TARGET libargon2)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -51,6 +52,7 @@ target_include_directories(${EXE_NAME} PRIVATE
 
 target_link_libraries(${EXE_NAME} PRIVATE
     PkgConfig::sodium
+    PkgConfig::argon2
 )
 
 ################# Libraries ##########################
