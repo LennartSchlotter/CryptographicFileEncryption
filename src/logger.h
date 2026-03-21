@@ -8,7 +8,6 @@ namespace logging {
 
 enum Severity : std::uint8_t {
     DEBUG,
-    VERBOSE,
     WARN,
     ERROR,
 };

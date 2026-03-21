@@ -1,6 +1,7 @@
 #include "logger.h"
 
 #include <cstdlib>
+#include <fmt/color.h>
 #include <iostream>
 
 #include "handler.h"
@@ -14,10 +15,20 @@ void log_result(const Result& result) {
     }
 }
 
-void log(const std::string& message, Severity severity = DEBUG) {
+void log(const std::string& message, Severity severity) {
     switch (severity) {
+        case Severity::ERROR:
+            fmt::print(fg(fmt::color::crimson) | fmt::emphasis::bold, "{}\n", message);
+            break;
+        case Severity::WARN:
+            fmt::print(fg(fmt::color::yellow), "{}\n", message);
+            break;
+        case Severity::DEBUG:
+            fmt::print("[DEBUG] {}\n", message);
+            break;
         default:
             std::cout << message << "\n";
+            break;
     }
 }
 
