@@ -50,13 +50,13 @@ void SecureAllocator::deallocate(char* ptr, size_t n) {
     bool success = VirtualUnlock(ptr, n);
     if (!success) {
         logging::log("Failed to unlock memory. This should not matter as it's about to be deleted.",
-                     logging::Severity::VERBOSE);
+                     logging::Severity::WARN);
     }
 #else
     const int result = munlock(ptr, n);
     if (result == -1) {
         logging::log("Failed to unlock memory. This should not matter as it's about to be deleted.",
-                     logging::Severity::VERBOSE);
+                     logging::Severity::WARN);
     }
 #endif
     inner.deallocate(ptr, n);
