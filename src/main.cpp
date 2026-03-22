@@ -11,11 +11,10 @@
 #include "handler.h"
 #include "logger.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
     try {
         auto args_vec = std::ranges::to<std::vector<std::string_view>>(
-            std::views::counted(std::next(argv), argc - 1)
-        );
+            std::views::counted(std::next(argv), argc - 1));
 
         if (argc <= 2) {
             logging::log_result(Result{.message = "Too few arguments passed", .success = false});
@@ -23,7 +22,8 @@ int main(int argc, char *argv[]) {
         }
 
         if (sodium_init() < 0) {
-            logging::log_result(Result{.message = "libsodium initialization failed.", .success = false});
+            logging::log_result(
+                Result{.message = "libsodium initialization failed.", .success = false});
             return EXIT_FAILURE;
         }
 
@@ -35,10 +35,10 @@ int main(int argc, char *argv[]) {
         }
         return EXIT_SUCCESS;
     } catch (const std::exception& e) {
-        logging::log_result(Result {.message = e.what(), .success = false});
+        logging::log_result(Result{.message = e.what(), .success = false});
         return EXIT_FAILURE;
     } catch (...) {
-        logging::log_result(Result {.message = "Unknown exception", .success = false});
+        logging::log_result(Result{.message = "Unknown exception", .success = false});
         return EXIT_FAILURE;
     }
 }

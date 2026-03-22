@@ -1,7 +1,8 @@
 #include "logger.h"
 
-#include <cstdlib>
 #include <fmt/color.h>
+
+#include <cstdlib>
 #include <iostream>
 
 #include "handler.h"
