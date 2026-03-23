@@ -7,7 +7,7 @@
 namespace crypto {
 
 // Handles encrypting the file passed in the request.
-Result encrypt(const Request& request);
+Result encrypt(const EncryptRequest& request);
 }  // namespace crypto
 
 #endif
