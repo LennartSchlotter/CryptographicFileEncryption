@@ -12,7 +12,7 @@ void log_result(const Result& result) {
     if (result.success) {
         std::cout << result.message << "\n";
     } else {
-        std::cout << "Error: " << result.message << "\n";
+        fmt::print(fg(fmt::color::crimson) | fmt::emphasis::bold, "[ERROR] {}\n", result.message);
     }
 }
 

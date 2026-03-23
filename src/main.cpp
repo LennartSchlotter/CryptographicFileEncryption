@@ -11,7 +11,7 @@
 #include "handler.h"
 #include "logger.h"
 
-int main(int argc, char* argv[]) {
+int main(int argc, const char* argv[]) {
     try {
         auto args_vec = std::ranges::to<std::vector<std::string_view>>(
             std::views::counted(std::next(argv), argc - 1));
