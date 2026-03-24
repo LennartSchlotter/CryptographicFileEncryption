@@ -48,51 +48,6 @@ std::expected<void, Result> parse(std::span<const std::string_view> args) {
     return std::unexpected(unexpected_result);
 }
 
-std::expected<void, Result> dispatch(const Request& request) {
-    const Result result = std::visit(overload{
-                                         [](const EncryptRequest& encrypt_request) -> Result {
-                                             return crypto::encrypt(encrypt_request);
-                                         },
-                                         [](const DecryptRequest& decrypt_request) -> Result {
-                                             return crypto::decrypt(decrypt_request);
-                                         },
-                                     },
-                                     request);
-    if (!result.success) {
-        return std::unexpected(result);
-    }
-
-    return {};
-}
-
-void help() {
-    fmt::print(
-        "Options:\n"
-        "--verbose              Start in verbose mode with enhanced logging\n"
-        "-c, --cipher-algo      Specify a cipher algorithm to use. Here is a list of supported "
-        "values:\n"
-        "rsa, ecdh, x25519, ml_kem, aes, chacha20\n"
-        "-o, --output           Specify a path for the output file to be written to\n"
-        "--symmetric            Use symmetric encryption.\n"
-        "--asymmetric           Use asymmetric encryption.\n"
-        "-h, --help             Show this help message and exit.\n");
-}
-
-bool is_asymmetric(CryptoAlgorithms algorithm) {
-    switch (algorithm) {
-        case CryptoAlgorithms::RSA:
-        case CryptoAlgorithms::ECDH:
-        case CryptoAlgorithms::X25519:
-        case CryptoAlgorithms::ML_KEM:
-            return true;
-            break;
-        case CryptoAlgorithms::AES_256:
-        case CryptoAlgorithms::ChaCha20:
-            return false;
-            break;
-    }
-}
-
 std::expected<void, Result> parse_flags(std::string_view tool,
                                         std::span<const std::string_view> args,
                                         std::string& output_path, bool& verbose,
@@ -145,6 +100,51 @@ std::expected<void, Result> parse_flags(std::string_view tool,
     }
 
     return {};
+}
+
+std::expected<void, Result> dispatch(const Request& request) {
+    const Result result = std::visit(overload{
+                                         [](const EncryptRequest& encrypt_request) -> Result {
+                                             return crypto::encrypt(encrypt_request);
+                                         },
+                                         [](const DecryptRequest& decrypt_request) -> Result {
+                                             return crypto::decrypt(decrypt_request);
+                                         },
+                                     },
+                                     request);
+    if (!result.success) {
+        return std::unexpected(result);
+    }
+
+    return {};
+}
+
+void help() {
+    fmt::print(
+        "Options:\n"
+        "--verbose              Start in verbose mode with enhanced logging\n"
+        "-c, --cipher-algo      Specify a cipher algorithm to use. Here is a list of supported "
+        "values:\n"
+        "rsa, ecdh, x25519, ml_kem, aes, chacha20\n"
+        "-o, --output           Specify a path for the output file to be written to\n"
+        "--symmetric            Use symmetric encryption.\n"
+        "--asymmetric           Use asymmetric encryption.\n"
+        "-h, --help             Show this help message and exit.\n");
+}
+
+bool is_asymmetric(CryptoAlgorithms algorithm) {
+    switch (algorithm) {
+        case CryptoAlgorithms::RSA:
+        case CryptoAlgorithms::ECDH:
+        case CryptoAlgorithms::X25519:
+        case CryptoAlgorithms::ML_KEM:
+            return true;
+            break;
+        case CryptoAlgorithms::AES_256:
+        case CryptoAlgorithms::ChaCha20:
+            return false;
+            break;
+    }
 }
 
 [[nodiscard]]

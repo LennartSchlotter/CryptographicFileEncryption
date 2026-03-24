@@ -5,7 +5,9 @@
 A CLI tool that supports encrypting and decrypting of files. Standalone C++ project primarily serving as a learning opportunity for both the language as well as cryptographic basics. 
 
 ## Features
-- password-based, symmetric encryption of files
+- file encryption and decryption
+    - password-based, symmetric
+    - key-based, asymmetric
 
 # Learning Process
 Considering this project is primarily a learning project, this file serves as a way to document the process, including the initial planning, lessons learned during development, but also a review / look ahead after the fact.
