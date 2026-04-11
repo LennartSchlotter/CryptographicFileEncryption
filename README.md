@@ -10,3 +10,6 @@ A CLI tool that supports encrypting and decrypting of files. Standalone C++ proj
     - key-based, asymmetric
 
 ## Usage
+
+## Additional Information
+As this is primarily a learning project, information on the development process can be found in `Development.md`
