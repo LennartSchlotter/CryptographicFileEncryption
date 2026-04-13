@@ -16,17 +16,20 @@ int main(int argc, const char* argv[]) {
         auto args_vec = std::ranges::to<std::vector<std::string_view>>(
             std::views::counted(std::next(argv), argc - 1));
 
+        // Verify argument count
         if (argc <= 2) {
             logging::log_result(Result{.message = "Too few arguments passed", .success = false});
             return EXIT_FAILURE;
         }
 
+        // Initialize external libraries
         if (sodium_init() < 0) {
             logging::log_result(
                 Result{.message = "libsodium initialization failed.", .success = false});
             return EXIT_FAILURE;
         }
 
+        // Parse input
         std::expected<void, Result> result = parse(args_vec);
         if (!result) {
             if (!result.error().success) {
