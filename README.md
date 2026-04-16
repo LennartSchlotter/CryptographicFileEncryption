@@ -7,7 +7,8 @@ A CLI tool that supports encrypting and decrypting of files. Standalone C++ proj
 ## Features
 - file encryption and decryption
     - password-based, symmetric
-    - key-based, asymmetric
+    - key-based, asymmetric 
+        > [This is implemented in a hybrid fashion. Encryption is still done symmetrically, but with an asymmetrically encrypted key.]
 
 ## Usage
 
