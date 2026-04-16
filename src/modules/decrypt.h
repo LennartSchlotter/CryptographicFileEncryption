@@ -12,13 +12,13 @@ namespace crypto {
 Result decrypt(const DecryptRequest& request);
 
 // Handles preparing the necessary requirements for symmetric decryption.
-std::vector<char, SecureAllocator> prepare_symmetric();
+std::vector<char, SecureAllocator<char>> prepare_symmetric();
 
 // Handles preparing the necessary requirements for asymmetric decryption.
-std::vector<char, SecureAllocator> prepare_asymmetric();
+std::vector<char, SecureAllocator<char>> prepare_asymmetric();
 
 // Decrypts the passed file using the provided algorithm and key.
-void decrypt(std::ofstream file, CryptoAlgorithms algorithm, std::vector<char, SecureAllocator> key);
+void decrypt(std::ofstream file, CryptoAlgorithms algorithm, std::vector<char, SecureAllocator<char>> key);
 }  // namespace crypto
 
 #endif
