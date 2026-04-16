@@ -12,7 +12,8 @@
 #include "helper/password.h"
 #include "logger.h"
 
-char* SecureAllocator::allocate(size_t n) {
+template <typename T>
+T* SecureAllocator<T>::allocate(size_t n) {
     char* ptr = inner.allocate(n);
 #ifdef _WIN32
     bool success = VirtualLock(ptr, n);
@@ -28,7 +29,8 @@ char* SecureAllocator::allocate(size_t n) {
     return ptr;
 }
 
-std::allocation_result<char*> SecureAllocator::allocate_at_least(size_t n) {
+template <typename T>
+std::allocation_result<T*> SecureAllocator<T>::allocate_at_least(size_t n) {
     std::allocation_result<char*> alloc_res = inner.allocate_at_least(n);
 #ifdef _WIN32
     bool success = VirtualLock(alloc_res.ptr, alloc_res.count);
@@ -44,7 +46,8 @@ std::allocation_result<char*> SecureAllocator::allocate_at_least(size_t n) {
     return alloc_res;
 }
 
-void SecureAllocator::deallocate(char* ptr, size_t n) {
+template <typename T>
+void SecureAllocator<T>::deallocate(T* ptr, size_t n) {
     secure_zero(ptr, n);
 #ifdef _WIN32
     bool success = VirtualUnlock(ptr, n);
