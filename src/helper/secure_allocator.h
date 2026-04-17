@@ -26,10 +26,12 @@ class SecureAllocator {
     // Provides a way to deallocate memory using the built-in `secure_zero` helper.
     void deallocate(T* ptr, size_t n);
 
+    // Defines the equality operator.
     bool operator==(const SecureAllocator&  /*other*/) const noexcept {
         return true;
     }
 
+    // Defines the inequality operator.
     bool operator!=(const SecureAllocator&  other) const noexcept {
         return !(*this == other);
     }
