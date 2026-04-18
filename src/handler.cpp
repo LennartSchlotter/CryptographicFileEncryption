@@ -21,7 +21,7 @@ std::expected<void, Result> parse(std::span<const std::string_view> args) {
     const std::string tool = std::string{args[0]};
     const std::string input_path = std::string{args[1]};
     std::string output_path = input_path;
-    CryptoAlgorithms algorithm = CryptoAlgorithms::ECDH;
+    CryptoAlgorithms algorithm = CryptoAlgorithms::ECDH_X25519;
     bool verbose = false;
 
     auto result = parse_flags(tool, args.subspan(2), output_path, verbose, algorithm);
@@ -53,9 +53,9 @@ std::expected<void, Result> parse_flags(std::string_view tool,
                                         std::string& output_path, bool& verbose,
                                         CryptoAlgorithms& algorithm) {
     static const std::unordered_map<std::string_view, CryptoAlgorithms> algorithm_map{
-        {"rsa", CryptoAlgorithms::RSA},       {"ecdh", CryptoAlgorithms::ECDH},
-        {"x25519", CryptoAlgorithms::X25519}, {"ml_kem", CryptoAlgorithms::ML_KEM},
-        {"aes", CryptoAlgorithms::AES_256},   {"chacha20", CryptoAlgorithms::ChaCha20},
+        {"rsa", CryptoAlgorithms::RSA_4096_OAEP},       {"ecdh", CryptoAlgorithms::ECDH_X25519},
+        {"ml_kem", CryptoAlgorithms::ML_KEM_768},       {"aes", CryptoAlgorithms::AES_256_GCM},
+        {"chacha20", CryptoAlgorithms::ChaCha20_POLY1305},
     };
 
     for (auto it = args.begin(); it != args.end();) {
@@ -134,14 +134,13 @@ void help() {
 
 bool is_asymmetric(CryptoAlgorithms algorithm) {
     switch (algorithm) {
-        case CryptoAlgorithms::RSA:
-        case CryptoAlgorithms::ECDH:
-        case CryptoAlgorithms::X25519:
-        case CryptoAlgorithms::ML_KEM:
+        case CryptoAlgorithms::RSA_4096_OAEP:
+        case CryptoAlgorithms::ECDH_X25519:
+        case CryptoAlgorithms::ML_KEM_768:
             return true;
             break;
-        case CryptoAlgorithms::AES_256:
-        case CryptoAlgorithms::ChaCha20:
+        case CryptoAlgorithms::AES_256_GCM:
+        case CryptoAlgorithms::ChaCha20_POLY1305:
             return false;
             break;
     }
