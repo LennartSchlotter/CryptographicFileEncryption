@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  LIBSODIUM_VERS: 1.0.22
+
 permissions:
   contents: read
 
@@ -44,6 +47,21 @@ jobs:
             libfmt-dev
           sudo ln -sf /usr/bin/clang-format-18 /usr/local/bin/clang-format
           sudo ln -sf /usr/bin/clang-tidy-18 /usr/local/bin/clang-tidy
+
+      - name: Cache libsodium installation
+        id: cache-libsodium
+        uses: actions/cache@v4
+        with:
+          path: /usr/local
+          key: libsodium-${{ env.LIBSODIUM_VERS }}
+
+      - if: ${{ steps.cache-libsodium.outputs.cache-hit != 'true' && runner.os == 'Linux' }}
+        name: Install libsodium from source
+        run: |
+          curl -L -o libsodium-${{ env.LIBSODIUM_VERS }}.tar.gz https://github.com/jedisct1/libsodium/releases/download/${{ env.LIBSODIUM_VERS }}-RELEASE/libsodium-${{ env.LIBSODIUM_VERS }}.tar.gz
+          tar -xvzf libsodium-${{ env.LIBSODIUM_VERS }}.tar.gz
+          cd libsodium-${{ env.LIBSODIUM_VERS }}/ && ./configure && make && make check && sudo make install
+          sudo ldconfig
 
       - name: Setup MSVC environment
         if: runner.os == 'Windows'
