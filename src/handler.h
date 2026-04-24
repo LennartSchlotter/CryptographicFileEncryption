@@ -12,9 +12,8 @@
 enum class CryptoAlgorithms : std::uint8_t {
     AES_256_GCM = 0x01,
     ChaCha20_POLY1305 = 0x02,
-    RSA_4096_OAEP = 0x10,
-    ECDH_X25519 = 0x11,
-    ML_KEM_768 = 0x12,
+    ECDH_X25519 = 0x10,
+    ML_KEM_768 = 0x11,
 };
 
 // Contains the shared fields that any request has

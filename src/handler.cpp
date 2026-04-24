@@ -53,9 +53,8 @@ std::expected<void, Result> parse_flags(std::string_view tool,
                                         std::string& output_path, bool& verbose,
                                         CryptoAlgorithms& algorithm) {
     static const std::unordered_map<std::string_view, CryptoAlgorithms> algorithm_map{
-        {"rsa", CryptoAlgorithms::RSA_4096_OAEP},       {"ecdh", CryptoAlgorithms::ECDH_X25519},
-        {"ml_kem", CryptoAlgorithms::ML_KEM_768},       {"aes", CryptoAlgorithms::AES_256_GCM},
-        {"chacha20", CryptoAlgorithms::ChaCha20_POLY1305},
+        {"ecdh", CryptoAlgorithms::ECDH_X25519},    {"ml_kem", CryptoAlgorithms::ML_KEM_768},
+        {"aes", CryptoAlgorithms::AES_256_GCM},     {"chacha20", CryptoAlgorithms::ChaCha20_POLY1305},
     };
 
     for (auto it = args.begin(); it != args.end();) {
@@ -89,7 +88,7 @@ std::expected<void, Result> parse_flags(std::string_view tool,
             auto found = algorithm_map.find(alg_str);
             if (found == algorithm_map.end()) {
                 return unexpected_error(
-                    "Unknown cipher algorithm. Supported algorithms include: \n rsa, ecdh, x25519, "
+                    "Unknown cipher algorithm. Supported algorithms include: \n ecdh, x25519_auth, "
                     "ml_kem, aes, chacha20");
             }
             algorithm = found->second;
@@ -132,9 +131,9 @@ void help() {
         "-h, --help             Show this help message and exit.\n");
 }
 
+//FIXME this can technically be replaced by a value check for 0x10.
 bool is_asymmetric(CryptoAlgorithms algorithm) {
     switch (algorithm) {
-        case CryptoAlgorithms::RSA_4096_OAEP:
         case CryptoAlgorithms::ECDH_X25519:
         case CryptoAlgorithms::ML_KEM_768:
             return true;

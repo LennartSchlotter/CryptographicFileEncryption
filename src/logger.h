@@ -6,6 +6,7 @@
 
 namespace logging {
 
+// The different severity levels available for the logger.
 enum Severity : std::uint8_t {
     DEBUG,
     WARN,
