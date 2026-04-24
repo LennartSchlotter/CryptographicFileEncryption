@@ -13,13 +13,13 @@ namespace crypto {
 Result encrypt(const EncryptRequest& request);
 
 // Handles preparing the necessary requirements for symmetric encryption.
-std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(std::ofstream& result_file);
+std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(std::ofstream& result_file, const EncryptRequest& request);
 
 // Handles preparing the necessary requirements for asymmetric encryption.
-std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(std::ofstream& result_file);
+std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(std::ofstream& result_file, const EncryptRequest& request);
 
 // Encrypts the passed file using the provided algorithm and key.
-void encrypt(std::ofstream& file, CryptoAlgorithms algorithm, std::vector<uint8_t, SecureAllocator<uint8_t>> key);
+void encrypt(std::ofstream& file, const EncryptRequest& request, std::vector<uint8_t, SecureAllocator<uint8_t>> key);
 }  // namespace crypto
 
 #endif
