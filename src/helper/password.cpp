@@ -122,8 +122,3 @@ std::vector<char, SecureAllocator<char>> read_password(const std::string& messag
     std::cout << "\n";
     return password;
 }
-
-void secure_zero(void* pointer, size_t n) {
-    volatile char* vp = static_cast<volatile char*>(pointer);
-    std::fill_n(vp, n, 0);
-}
