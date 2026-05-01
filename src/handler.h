@@ -65,9 +65,6 @@ std::expected<void, Result> dispatch(const Request& request);
 // Prints a help message
 void help();
 
-// Helper function to determine if the chosen algorithm is asymmetric
-bool is_asymmetric(CryptoAlgorithms algorithm);
-
 // Helper function to print out a generic error.
 std::unexpected<Result> unexpected_error(std::string message);
 

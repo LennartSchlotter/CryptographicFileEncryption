@@ -131,20 +131,6 @@ void help() {
         "-h, --help             Show this help message and exit.\n");
 }
 
-//FIXME this can technically be replaced by a value check for 0x10.
-bool is_asymmetric(CryptoAlgorithms algorithm) {
-    switch (algorithm) {
-        case CryptoAlgorithms::ECDH_X25519:
-        case CryptoAlgorithms::ML_KEM_768:
-            return true;
-            break;
-        case CryptoAlgorithms::AES_256_GCM:
-        case CryptoAlgorithms::ChaCha20_POLY1305:
-            return false;
-            break;
-    }
-}
-
 [[nodiscard]]
 std::unexpected<Result> unexpected_error(std::string message) {
     Result result{.message = std::move(message), .success = false};
