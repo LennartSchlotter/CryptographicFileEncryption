@@ -1,6 +1,7 @@
 #include "modules/encrypt.h"
 #include <argon2.h>
 #include <sodium/crypto_aead_aes256gcm.h>
+#include <sodium/crypto_aead_chacha20poly1305.h>
 #include <sodium/crypto_box.h>
 #include <sodium/crypto_kdf_hkdf_sha256.h>
 #include <sodium/crypto_kem.h>
@@ -26,6 +27,7 @@
 #include <vector>
 
 #include "handler.h"
+#include "helper/cryptography.h"
 #include "helper/password.h"
 #include "helper/secure_allocator.h"
 
@@ -54,7 +56,7 @@ Result encrypt(const EncryptRequest& request) {
 }
 
 std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(std::vector<unsigned char, SecureAllocator<unsigned char>>& header, const EncryptRequest& request) {
-    const size_t SALT_LENGTH = 32;
+    const size_t SALT_LENGTH = 12;
     const size_t IV_LENGTH = 12;
     const size_t KEY_LENGTH = 32;
     const uint32_t t_cost = 3;
@@ -108,7 +110,6 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(std::vector<uns
 
 std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(std::vector<unsigned char, SecureAllocator<unsigned char>>& header, const EncryptRequest& request) {
     const size_t KEY_LENGTH = 32;
-    const size_t KEM_CIPHERTEXT_LENGTH = 32;
     const size_t AES_KEY_LENGTH = 32;
     const size_t IV_LENGTH = 12;
 
@@ -119,7 +120,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(std::vector<un
     std::ifstream pk(file_name);
 
     std::vector<unsigned char, SecureAllocator<unsigned char>> recipient_pk((std::istreambuf_iterator<char>(pk)), std::istreambuf_iterator<char>());
-    std::vector<unsigned char, SecureAllocator<unsigned char>> derived_key;
+    std::vector<unsigned char, SecureAllocator<unsigned char>> derived_key(KEY_LENGTH);
     std::vector<unsigned char, SecureAllocator<unsigned char>> ephemeral_pk(crypto_box_PUBLICKEYBYTES);
     std::vector<unsigned char, SecureAllocator<unsigned char>> kem_ciphertext(crypto_kem_CIPHERTEXTBYTES);
 
@@ -178,9 +179,9 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(std::vector<un
     // Encrypted Key Length
     int key_length = 0;
     if (request.algorithm == CryptoAlgorithms::ECDH_X25519) {
-        key_length = KEY_LENGTH;
+        key_length = crypto_box_PUBLICKEYBYTES;
     } else if (request.algorithm == CryptoAlgorithms::ML_KEM_768) {
-        key_length = KEM_CIPHERTEXT_LENGTH;
+        key_length = crypto_kem_CIPHERTEXTBYTES;
     }
 
     std::array<char, 4> key_length_str{};
@@ -212,15 +213,25 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(std::vector<un
 
 void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header, const EncryptRequest& request, const std::vector<uint8_t, SecureAllocator<uint8_t>>& key) {
     const size_t IV_LENGTH = 12;
+    int64_t key_length = retrieve_key_length(request.algorithm);
+    const uint8_t SYMMETRIC_IV_INDEX = 35;
+    const int64_t ASYMMETRIC_IV_INDEX = 14 + key_length;
+    std::vector<unsigned char> iv;
 
     uint64_t file_size = std::filesystem::file_size(request.request.file_path);
     std::vector<unsigned char, SecureAllocator<unsigned char>> original_file_content(file_size);
-    std::vector<char, SecureAllocator<char>> original_file_content_char;
-    std::ranges::transform(original_file_content, original_file_content_char.begin(), [](unsigned char character){
-        return static_cast<char>(character);
-    });
+    std::vector<char, SecureAllocator<char>> temp_buffer(file_size);
     std::ifstream source { request.request.file_path, std::ios::binary };
-    source.read(original_file_content_char.data(), static_cast<std::streamsize>(file_size));
+
+    if (!source.is_open()) {
+        unexpected_error("Failed to open file.");
+    }
+
+    source.read(temp_buffer.data(), static_cast<std::streamsize>(file_size));
+    std::ranges::transform(temp_buffer, original_file_content.begin(),
+    [](char character) -> unsigned char {
+        return static_cast<unsigned char>(character);
+    });
 
     std::vector<unsigned char, SecureAllocator<unsigned char>> encrypted_file_content;
     std::vector<char, SecureAllocator<char>> encrypted_file_content_char;
@@ -234,14 +245,20 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
     switch (request.algorithm) {
         case CryptoAlgorithms::ChaCha20_POLY1305: {
 
-            std::vector<unsigned char, SecureAllocator<unsigned char>> nonce(crypto_stream_chacha20_NONCEBYTES);
-            randombytes_buf(nonce.data(), nonce.size());
+            int64_t offset = 0;
+            if (is_asymmetric(request.algorithm)) {
+                offset = ASYMMETRIC_IV_INDEX;
+                auto iv_span = std::span(encrypted_file_content.begin() + offset, encrypted_file_content.begin() + offset + IV_LENGTH);
+                iv.assign(iv_span.begin(), iv_span.end());
+            } else {
+                offset = SYMMETRIC_IV_INDEX;
+                auto iv_span = std::span(encrypted_file_content.begin() + offset, encrypted_file_content.begin() + offset + IV_LENGTH);
+                iv.assign(iv_span.begin(), iv_span.end());
+            }
 
-            if (crypto_stream_chacha20_xor(encrypted_file_content.data(), original_file_content.data(),
-                               encrypted_length, nonce.data(),
-                               key.data()) != 0) {
-                                unexpected_error("Failed to encrypt data. This may be due to the authentication tag being invalid.");
-                               }
+            if (crypto_aead_chacha20poly1305_encrypt(encrypted_file_content.data(), &encrypted_length, original_file_content.data(), original_file_content.size(), header.data(), header.size(), nullptr, iv.data(), key.data()) != 0) {
+                unexpected_error("Failed to encrypt data. This may be due to the authentication tag being invalid.");
+            }
             break;
         }
         // There are only 3 other algorithms.
@@ -251,8 +268,16 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
                 unexpected_error("AES_256-GCM is not available on this CPU.");
             }
 
-            std::array<unsigned char, IV_LENGTH> iv{};
-            randombytes_buf(iv.data(), iv.size());
+            int64_t offset = 0;
+            if (is_asymmetric(request.algorithm)) {
+                offset = ASYMMETRIC_IV_INDEX;
+                auto iv_span = std::span(encrypted_file_content.begin() + offset, encrypted_file_content.begin() + offset + IV_LENGTH);
+                iv.assign(iv_span.begin(), iv_span.end());
+            } else {
+                offset = SYMMETRIC_IV_INDEX;
+                auto iv_span = std::span(encrypted_file_content.begin() + offset, encrypted_file_content.begin() + offset + IV_LENGTH);
+                iv.assign(iv_span.begin(), iv_span.end());
+            }
 
             if (crypto_aead_aes256gcm_encrypt(encrypted_file_content.data(), &encrypted_length,
                               original_file_content.data(), file_size,
@@ -261,14 +286,13 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
                                 unexpected_error("Failed to encrypt data. This may be due to the authentication tag being invalid.");
                               }
             break;
-            break;
         }
     }
 
     // Create File
-    std::filesystem::path path = request.request.output_path;
-    std::string output_path = path.parent_path();
-    std::ofstream file(output_path, std::ios::out | std::ios::trunc | std::ios::binary);
+    std::filesystem::path path = request.request.output_path + ".cfe";
+    std::filesystem::create_directories(path.parent_path());
+    std::ofstream file(path, std::ios::out | std::ios::trunc | std::ios::binary);
     if (!file) {
         unexpected_error("Failed to open file created at output path.");
     }

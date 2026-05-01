@@ -2,7 +2,6 @@
 #include <sodium/crypto_box.h>
 #include <sodium/crypto_kem.h>
 
-//FIXME this can technically be replaced by a value check for 0x10.
 bool is_asymmetric(CryptoAlgorithms algorithm) { // NOLINT(misc-use-internal-linkage)
     switch (algorithm) {
         case CryptoAlgorithms::ECDH_X25519:
