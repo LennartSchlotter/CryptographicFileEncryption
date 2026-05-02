@@ -42,7 +42,6 @@ jobs:
             libc++-18-dev \
             libc++abi-18-dev \
             pkg-config \
-            libsodium-dev \
             libargon2-dev \
             libfmt-dev
           sudo ln -sf /usr/bin/clang-format-18 /usr/local/bin/clang-format
@@ -52,16 +51,18 @@ jobs:
         id: cache-libsodium
         uses: actions/cache@v4
         with:
-          path: /usr/local
-          key: libsodium-${{ env.LIBSODIUM_VERS }}
+          path: ~/libsodium
+          key: libsodium-${{ env.LIBSODIUM_VERS }}-${{ runner.os }}
 
       - if: ${{ steps.cache-libsodium.outputs.cache-hit != 'true' && runner.os == 'Linux' }}
         name: Install libsodium from source
         run: |
           curl -L -o libsodium-${{ env.LIBSODIUM_VERS }}.tar.gz https://github.com/jedisct1/libsodium/releases/download/${{ env.LIBSODIUM_VERS }}-RELEASE/libsodium-${{ env.LIBSODIUM_VERS }}.tar.gz
           tar -xvzf libsodium-${{ env.LIBSODIUM_VERS }}.tar.gz
-          cd libsodium-${{ env.LIBSODIUM_VERS }}/ && ./configure && make && make check && sudo make install
-          sudo ldconfig
+          cd libsodium-${{ env.LIBSODIUM_VERS }}
+          ./configure --prefix=~/libsodium
+          make -j$(nproc)
+          make install
 
       - name: Setup MSVC environment
         if: runner.os == 'Windows'
@@ -75,6 +76,7 @@ jobs:
             -DCMAKE_C_COMPILER=clang-18 \
             -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
             -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++" \
+            -DCMAKE_PREFIX_PATH=~/libsodium \
             -G Ninja
 
       - name: Build (Debug)
