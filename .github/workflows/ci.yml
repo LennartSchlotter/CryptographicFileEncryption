@@ -60,7 +60,7 @@ jobs:
           curl -L -o libsodium-${{ env.LIBSODIUM_VERS }}.tar.gz https://github.com/jedisct1/libsodium/releases/download/${{ env.LIBSODIUM_VERS }}-RELEASE/libsodium-${{ env.LIBSODIUM_VERS }}.tar.gz
           tar -xvzf libsodium-${{ env.LIBSODIUM_VERS }}.tar.gz
           cd libsodium-${{ env.LIBSODIUM_VERS }}
-          ./configure --prefix=~/libsodium
+          ./configure --prefix="$HOME/libsodium"
           make -j$(nproc)
           make install
 
@@ -76,7 +76,7 @@ jobs:
             -DCMAKE_C_COMPILER=clang-18 \
             -DCMAKE_CXX_FLAGS="-stdlib=libc++" \
             -DCMAKE_EXE_LINKER_FLAGS="-stdlib=libc++" \
-            -DCMAKE_PREFIX_PATH=~/libsodium \
+            -DCMAKE_PREFIX_PATH=$HOME/libsodium \
             -G Ninja
 
       - name: Build (Debug)
