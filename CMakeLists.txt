@@ -42,7 +42,6 @@ target_sources(${EXE_NAME} PRIVATE
     src/handler.cpp
     src/logger.cpp
     src/helper/password.cpp
-    src/helper/secure_allocator.cpp
     src/helper/cryptography.cpp
     src/helper/secure_memory.cpp
     src/modules/encrypt.cpp
