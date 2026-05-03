@@ -12,6 +12,9 @@ bool is_asymmetric(CryptoAlgorithms algorithm) { // NOLINT(misc-use-internal-lin
         case CryptoAlgorithms::ChaCha20_POLY1305:
             return false;
             break;
+        default: {
+            unexpected_error("An unexpected error has occured. Please try again or report the bug.");
+        }
     }
 }
 

@@ -154,8 +154,6 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(std::vector<un
             break;
         }
         case CryptoAlgorithms::ML_KEM_768: {
-            std::vector<unsigned char, SecureAllocator<unsigned char>> shared_secret(crypto_kem_SHAREDSECRETBYTES);
-
             if (crypto_kem_enc(kem_ciphertext.data(), derived_key.data(), recipient_pk.data()) != 0) {
                 unexpected_error("Failed to create ciphertext or secret for the passed public key");
             }
@@ -190,13 +188,9 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(std::vector<un
     
     // Encrypted Key
     if (request.algorithm == CryptoAlgorithms::ECDH_X25519) {
-        for (unsigned char character : ephemeral_pk) {
-            header.emplace_back(static_cast<char>(character));
-        }
+        std::ranges::transform(ephemeral_pk, header.begin(), [](unsigned char character) { return static_cast<char>(character); });
     } else if (request.algorithm == CryptoAlgorithms::ML_KEM_768) {
-        for (unsigned char character : kem_ciphertext) {
-            header.emplace_back(static_cast<char>(character));
-        }
+        std::ranges::transform(kem_ciphertext, header.begin(), [](unsigned char character) { return static_cast<char>(character); });
     }
 
     // IV
