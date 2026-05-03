@@ -265,11 +265,14 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
         }
     }
 
+    std::string final_path;
     if (output_path.ends_with(".cfe")) {
-        output_path.substr(0, output_path.length() - 4);
+        final_path = output_path.substr(0, output_path.length() - 4);
+    } else {
+        final_path = output_path;
     }
     
-    std::filesystem::path path = output_path;
+    std::filesystem::path path = final_path;
     std::filesystem::create_directories(path.parent_path());
     std::ofstream file(path, std::ios::out | std::ios::trunc | std::ios::binary);
 
