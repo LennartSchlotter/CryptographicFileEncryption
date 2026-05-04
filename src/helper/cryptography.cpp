@@ -2,7 +2,7 @@
 #include <sodium/crypto_box.h>
 #include <sodium/crypto_kem.h>
 
-bool is_asymmetric(CryptoAlgorithms algorithm) { // NOLINT(misc-use-internal-linkage)
+bool is_asymmetric(CryptoAlgorithms algorithm) {
     switch (algorithm) {
         case CryptoAlgorithms::ECDH_X25519:
         case CryptoAlgorithms::ML_KEM_768:
@@ -18,7 +18,7 @@ bool is_asymmetric(CryptoAlgorithms algorithm) { // NOLINT(misc-use-internal-lin
     }
 }
 
-int64_t retrieve_key_length(CryptoAlgorithms algorithm) { // NOLINT(misc-use-internal-linkage)
+int64_t retrieve_key_length(CryptoAlgorithms algorithm) {
     const size_t SYMMETRIC_KEY_LENGTH = 32;
 
     switch (algorithm) {
