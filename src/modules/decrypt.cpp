@@ -40,7 +40,7 @@ Result decrypt(const DecryptRequest& request) {
         unexpected_error("Failed to open requested file.");
     }
 
-    uint64_t file_size = std::filesystem::file_size(request.request.file_path);
+    const uint64_t file_size = std::filesystem::file_size(request.request.file_path);
     std::vector<char, SecureAllocator<char>> encrypted_file_content(file_size);
     source.read(encrypted_file_content.data(), static_cast<std::streamsize>(file_size));
 
@@ -52,7 +52,7 @@ Result decrypt(const DecryptRequest& request) {
     }
 
     // Extract Algorithm
-    char algorithm_char = encrypted_file_content[ALGORITHM_INDEX];
+    const char algorithm_char = encrypted_file_content[ALGORITHM_INDEX];
     CryptoAlgorithms algorithm = CryptoAlgorithms::AES_256_GCM;
 
     switch (algorithm_char) {
@@ -121,7 +121,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(const std::vect
     auto parallelism = static_cast<uint32_t>(static_cast<unsigned char>(encrypted_file_content[PARALLELISM_OFFSET]));
     auto salt = std::span(encrypted_file_content.begin() + SALT_OFFSET, encrypted_file_content.begin() + SALT_OFFSET + SALT_SIZE);
 
-    int result = argon2id_hash_raw(t_cost, m_cost, parallelism, pw.data(), pw_len, salt.data(), salt.size(), derived_key.data(), derived_key.size());
+    const int result = argon2id_hash_raw(t_cost, m_cost, parallelism, pw.data(), pw_len, salt.data(), salt.size(), derived_key.data(), derived_key.size());
 
     if (result != ARGON2_OK) {
         unexpected_error(argon2_error_message(result));
@@ -141,7 +141,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(const std::vec
     //`read_password` with file path to key
     std::vector<char, SecureAllocator<char>> sk_path = read_password("Please enter the path of the private key used to decrypt: ");
     using SecureString = std::basic_string<char, std::char_traits<char>, SecureAllocator<char>>;
-    SecureString file_name(sk_path.begin(), sk_path.end());
+    const SecureString file_name(sk_path.begin(), sk_path.end());
     std::ifstream sk(file_name);
 
     std::vector<unsigned char, SecureAllocator<unsigned char>> recipient_sk((std::istreambuf_iterator<char>(sk)), std::istreambuf_iterator<char>());
@@ -211,13 +211,13 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
 
     // Retrieve ciphertext length
     if (is_asymmetric(algorithm)) {
-        int64_t key_length = retrieve_key_length(algorithm);
+        const int64_t key_length = retrieve_key_length(algorithm);
         auto offset = static_cast<size_t>(ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET_BASE + key_length);
 
-        std::span<const char> content_span(encrypted_file_content);
+        const std::span<const char> content_span(encrypted_file_content);
         std::memcpy(&ciphertext_len, content_span.data() + offset, CIPHERTEXT_LENGTH_SIZE);
     } else {
-        std::span<const char> content_span(encrypted_file_content);
+        const std::span<const char> content_span(encrypted_file_content);
         std::memcpy(&ciphertext_len, content_span.data() + SYMMETRIC_CIPHERTEXT_LENGTH_OFFSET, CIPHERTEXT_LENGTH_SIZE);
     }
 
@@ -272,7 +272,7 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
         final_path = output_path;
     }
     
-    std::filesystem::path path = final_path;
+    const std::filesystem::path path = final_path;
     std::filesystem::create_directories(path.parent_path());
     std::ofstream file(path, std::ios::out | std::ios::trunc | std::ios::binary);
 

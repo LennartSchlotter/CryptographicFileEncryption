@@ -11,8 +11,8 @@
 #include <memory>
 #include <string>
 
-#include "secure_memory.h"
 #include "logger.h"
+#include "secure_memory.h"
 
 // Generic template for the type to be used for the allocator.
 template <typename T>

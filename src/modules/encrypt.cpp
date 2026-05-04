@@ -74,7 +74,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(std::vector<uns
 
     std::vector<uint8_t, SecureAllocator<uint8_t>> derived_key(KEY_LENGTH); 
 
-    int result = argon2id_hash_raw(t_cost, m_cost, parallelism, pw.data(), pw_len, salt.data(), salt.size(), derived_key.data(), derived_key.size());
+    const int result = argon2id_hash_raw(t_cost, m_cost, parallelism, pw.data(), pw_len, salt.data(), salt.size(), derived_key.data(), derived_key.size());
 
     if (result != ARGON2_OK) {
         unexpected_error(argon2_error_message(result));
@@ -101,7 +101,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(std::vector<uns
     randombytes_buf(iv.data(), iv.size());
     header.insert(header.end(), iv.begin(), iv.end());
 
-    uint64_t file_size = std::filesystem::file_size(request.request.file_path);
+    const uint64_t file_size = std::filesystem::file_size(request.request.file_path);
     auto bytes = std::bit_cast<std::array<char, sizeof(uint64_t)>>(file_size);
     header.insert(header.end(), bytes.begin(), bytes.end());
 
@@ -116,7 +116,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(std::vector<un
     // `read_password` with file path to key
     std::vector<char, SecureAllocator<char>> public_key_path = read_password("Please enter the path of the public key of the recipient: ");
     using SecureString = std::basic_string<char, std::char_traits<char>, SecureAllocator<char>>;
-    SecureString file_name(public_key_path.begin(), public_key_path.end());
+    const SecureString file_name(public_key_path.begin(), public_key_path.end());
     std::ifstream pk(file_name);
 
     std::vector<unsigned char, SecureAllocator<unsigned char>> recipient_pk((std::istreambuf_iterator<char>(pk)), std::istreambuf_iterator<char>());
@@ -199,7 +199,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(std::vector<un
     header.insert(header.end(), header.begin(), header.end());
 
     // Ciphertext length
-    uint64_t file_size = std::filesystem::file_size(request.request.file_path);
+    const uint64_t file_size = std::filesystem::file_size(request.request.file_path);
     header.emplace_back(static_cast<char>(file_size));
 
     return derived_key;
@@ -207,12 +207,12 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(std::vector<un
 
 void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header, const EncryptRequest& request, const std::vector<uint8_t, SecureAllocator<uint8_t>>& key) {
     const size_t IV_LENGTH = 12;
-    int64_t key_length = retrieve_key_length(request.algorithm);
+    const int64_t key_length = retrieve_key_length(request.algorithm);
     const uint8_t SYMMETRIC_IV_INDEX = 35;
     const int64_t ASYMMETRIC_IV_INDEX = 14 + key_length;
     std::vector<unsigned char> iv;
 
-    uint64_t file_size = std::filesystem::file_size(request.request.file_path);
+    const uint64_t file_size = std::filesystem::file_size(request.request.file_path);
     std::vector<unsigned char, SecureAllocator<unsigned char>> original_file_content(file_size);
     std::vector<char, SecureAllocator<char>> temp_buffer(file_size);
     std::ifstream source { request.request.file_path, std::ios::binary };
@@ -284,7 +284,7 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
     }
 
     // Create File
-    std::filesystem::path path = request.request.output_path + ".cfe";
+    const std::filesystem::path path = request.request.output_path + ".cfe";
     std::filesystem::create_directories(path.parent_path());
     std::ofstream file(path, std::ios::out | std::ios::trunc | std::ios::binary);
     if (!file) {
