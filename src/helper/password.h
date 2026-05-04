@@ -2,9 +2,10 @@
 
 #define PASSWORD_H
 
-#include "helper/secure_allocator.h"
 #include <string>
 #include <vector>
+
+#include "helper/secure_allocator.h"
 
 struct TerminalGuard;
 

@@ -1,6 +1,7 @@
-#include "handler.h"
 #include <sodium/crypto_box.h>
 #include <sodium/crypto_kem.h>
+
+#include "handler.h"
 
 bool is_asymmetric(CryptoAlgorithms algorithm) {
     switch (algorithm) {
@@ -13,7 +14,8 @@ bool is_asymmetric(CryptoAlgorithms algorithm) {
             return false;
             break;
         default: {
-            unexpected_error("An unexpected error has occured. Please try again or report the bug.");
+            unexpected_error(
+                "An unexpected error has occured. Please try again or report the bug.");
         }
     }
 }

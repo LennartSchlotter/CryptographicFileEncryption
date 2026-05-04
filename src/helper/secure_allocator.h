@@ -31,30 +31,35 @@ class SecureAllocator {
 #ifdef _WIN32
         bool success = VirtualLock(ptr, n * sizeof(T));
         if (!success) {
-            logging::log("Failed to lock memory. This is a security risk.", logging::Severity::WARN);
+            logging::log("Failed to lock memory. This is a security risk.",
+                         logging::Severity::WARN);
         }
 #else
         const int result = mlock(ptr, n * sizeof(T));
         if (result == -1) {
-            logging::log("Failed to lock memory. This is a security risk.", logging::Severity::WARN);
+            logging::log("Failed to lock memory. This is a security risk.",
+                         logging::Severity::WARN);
         }
 #endif
         return ptr;
     }
 
     // Allocates at least the passed amount of objects.
-    // Returns an allocation result containing a pointer to the allocated memory and the actual number of elements.
+    // Returns an allocation result containing a pointer to the allocated memory and the actual
+    // number of elements.
     std::allocation_result<T*> allocate_at_least(size_t n) {
         std::allocation_result<T*> alloc_res = inner.allocate_at_least(n);
 #ifdef _WIN32
         bool success = VirtualLock(alloc_res.ptr, alloc_res.count);
         if (!success) {
-            logging::log("Failed to lock memory. This is a security risk.", logging::Severity::WARN);
+            logging::log("Failed to lock memory. This is a security risk.",
+                         logging::Severity::WARN);
         }
 #else
         const int result = mlock(alloc_res.ptr, alloc_res.count);
         if (result == -1) {
-            logging::log("Failed to lock memory. This is a security risk.", logging::Severity::WARN);
+            logging::log("Failed to lock memory. This is a security risk.",
+                         logging::Severity::WARN);
         }
 #endif
         return alloc_res;
@@ -66,26 +71,28 @@ class SecureAllocator {
 #ifdef _WIN32
         bool success = VirtualUnlock(ptr, n * sizeof(T));
         if (!success) {
-            logging::log("Failed to unlock memory. This should not matter as it's about to be deleted.",
-                        logging::Severity::WARN);
+            logging::log(
+                "Failed to unlock memory. This should not matter as it's about to be deleted.",
+                logging::Severity::WARN);
         }
 #else
         const int result = munlock(ptr, n * sizeof(T));
         if (result == -1) {
-            logging::log("Failed to unlock memory. This should not matter as it's about to be deleted.",
-                        logging::Severity::WARN);
+            logging::log(
+                "Failed to unlock memory. This should not matter as it's about to be deleted.",
+                logging::Severity::WARN);
         }
 #endif
         inner.deallocate(ptr, n);
     }
 
     // Defines the equality operator.
-    bool operator==(const SecureAllocator&  /*other*/) const noexcept {
+    bool operator==(const SecureAllocator& /*other*/) const noexcept {
         return true;
     }
 
     // Defines the inequality operator.
-    bool operator!=(const SecureAllocator&  other) const noexcept {
+    bool operator!=(const SecureAllocator& other) const noexcept {
         return !(*this == other);
     }
 };

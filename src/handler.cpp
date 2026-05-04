@@ -53,8 +53,10 @@ std::expected<void, Result> parse_flags(std::string_view tool,
                                         std::string& output_path, bool& verbose,
                                         CryptoAlgorithms& algorithm) {
     static const std::unordered_map<std::string_view, CryptoAlgorithms> algorithm_map{
-        {"ecdh", CryptoAlgorithms::ECDH_X25519},    {"ml_kem", CryptoAlgorithms::ML_KEM_768},
-        {"aes", CryptoAlgorithms::AES_256_GCM},     {"chacha20", CryptoAlgorithms::ChaCha20_POLY1305},
+        {"ecdh", CryptoAlgorithms::ECDH_X25519},
+        {"ml_kem", CryptoAlgorithms::ML_KEM_768},
+        {"aes", CryptoAlgorithms::AES_256_GCM},
+        {"chacha20", CryptoAlgorithms::ChaCha20_POLY1305},
     };
 
     for (auto it = args.begin(); it != args.end();) {
