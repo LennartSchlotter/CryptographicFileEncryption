@@ -48,3 +48,7 @@ desktop.ini
 
 # Custom assets
 assets/
+
+# Libsodium
+libsodium-*/
+libsodium-*
