@@ -81,6 +81,9 @@ jobs:
 
       - name: Build (Debug)
         run: cmake --build build --config Debug --parallel 4
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
       
       - name: Cppcheck
         run: make check
