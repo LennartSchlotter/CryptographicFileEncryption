@@ -3,7 +3,7 @@ Considering this project is primarily a learning project, this file serves as a 
 
 ## Fundamental Concepts learned / applied
 - Threat Modelling
-- Using cryptographic APIs
+- Using cryptographic APIs (libsodium)
 - Secure memory handling (storing passwords)
     - Strings, Vectors
     - Echo (UNIX / Windows)
