@@ -2,17 +2,19 @@
 >This project is still in development and as such not feature complete, tested or optimized. Changes are incoming daily.
 
 # Cryptographic File Encryption Tool
-A CLI tool that supports encrypting and decrypting of files. Standalone C++ project primarily serving as a learning opportunity for both the language as well as cryptographic basics. 
+A CLI tool that supports encrypting and decrypting of files. Standalone C++-CLI project primarily serving as a learning opportunity for both the language as well as cryptographic basics. 
 
 Please keep in mind that this is a learning project. While care has been taken in its design and this project is open for maintenance and improvements, it has not undergone professional security auditing. It should not be relied upon for protecting highly sensitive data.
 
 ## Features
 - file encryption and decryption
     - password-based, symmetric
-    - key-based, asymmetric 
+    - key-based, asymmetric (hybrid)
         > [This is implemented in a hybrid fashion. Encryption is still done symmetrically, but with an asymmetrically encrypted key.]
 
 ## Usage
+### Installation
+### Commandline Help
 
 ## Internal Structure
 The file created during encryption has a `.cfe` extension. This is a custom file-type that is used so that the program can store non-sensitive data for the encryption process. As such, the structure of the header is standardized to allow parsing and the magic bytes are verified prior to decryption.

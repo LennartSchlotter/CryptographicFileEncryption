@@ -4,17 +4,17 @@ Considering this project is primarily a learning project, this file serves as a 
 ## Fundamental Concepts learned / applied
 - Threat Modelling
 - Using cryptographic APIs (libsodium)
-- Secure memory handling (storing passwords)
+- Secure memory handling
     - Strings, Vectors
     - Echo (UNIX / Windows)
 - Magic Bytes / File Signatures
-- Streaming I/O
 
 ## Expanding from the base version
 
 ## Post-Mortem
 ### What would I do differently?
 - Have a clearer idea for the usage / scope of the project. This is a recurring problem I have, where I plan too little.
+- Work more directly with means of code verification. That includes implementing tests earlier, working more directly with static analyzers as well as means of formal verification if possible
 
 ### Review
 
