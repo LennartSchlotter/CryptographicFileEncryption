@@ -1,3 +1,5 @@
+#include <sodium/crypto_aead_aes256gcm.h>
+#include <sodium/crypto_aead_chacha20poly1305.h>
 #include <sodium/crypto_box.h>
 #include <sodium/crypto_kem.h>
 #include <utility>
@@ -21,8 +23,6 @@ bool is_asymmetric(CryptoAlgorithms algorithm) {
 }
 
 int64_t retrieve_key_length(CryptoAlgorithms algorithm) {
-    const size_t SYMMETRIC_KEY_LENGTH = 32;
-
     switch (algorithm) {
         case CryptoAlgorithms::ECDH_X25519: {
             return crypto_box_PUBLICKEYBYTES;
@@ -30,9 +30,11 @@ int64_t retrieve_key_length(CryptoAlgorithms algorithm) {
         case CryptoAlgorithms::ML_KEM_768: {
             return crypto_kem_CIPHERTEXTBYTES;
         }
-        case CryptoAlgorithms::AES_256_GCM:
+        case CryptoAlgorithms::AES_256_GCM: {
+            return crypto_aead_aes256gcm_KEYBYTES;
+        }
         case CryptoAlgorithms::ChaCha20_POLY1305:
-            return SYMMETRIC_KEY_LENGTH;
+            return crypto_aead_chacha20poly1305_KEYBYTES;
         default: {
             std::unreachable();
         }
