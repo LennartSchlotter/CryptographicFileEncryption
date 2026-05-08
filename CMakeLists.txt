@@ -34,7 +34,7 @@ set(SANITIZE_FLAGS -fsanitize=address,undefined -fno-sanitize=leak)
 function(cfe_target_options TARGET)
     target_compile_options(${TARGET} PRIVATE
         $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:
-            -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wsign-conversion
+            -Wall -Wextra -Wpedantic -Wshadow -Wconversion -Wsign-conversion -Wswitch-enum
         >
         $<$<CONFIG:Debug>:
             -g -O0

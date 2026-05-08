@@ -209,6 +209,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
             break;
         }
         default: {
+            std::unreachable();
             break;
         }
     }

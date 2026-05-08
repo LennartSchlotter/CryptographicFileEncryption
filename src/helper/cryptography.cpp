@@ -1,5 +1,6 @@
 #include <sodium/crypto_box.h>
 #include <sodium/crypto_kem.h>
+#include <utility>
 
 #include "handler.h"
 
@@ -14,8 +15,7 @@ bool is_asymmetric(CryptoAlgorithms algorithm) {
             return false;
             break;
         default: {
-            unexpected_error(
-                "An unexpected error has occured. Please try again or report the bug.");
+            std::unreachable();
         }
     }
 }
@@ -30,8 +30,11 @@ int64_t retrieve_key_length(CryptoAlgorithms algorithm) {
         case CryptoAlgorithms::ML_KEM_768: {
             return crypto_kem_CIPHERTEXTBYTES;
         }
-        default: {
+        case CryptoAlgorithms::AES_256_GCM:
+        case CryptoAlgorithms::ChaCha20_POLY1305:
             return SYMMETRIC_KEY_LENGTH;
+        default: {
+            std::unreachable();
         }
     }
 }
