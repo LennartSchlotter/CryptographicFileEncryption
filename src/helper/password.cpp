@@ -27,19 +27,19 @@ struct TerminalGuard {
    public:
     TerminalGuard() : hStdin(GetStdHandle(STD_INPUT_HANDLE)) {
         if (hStdin == INVALID_HANDLE_VALUE) {
-            logging::log("Failed to retrieve standard input handle. Echoing cannot be disabled",
+            logging::log("Failed to retrieve standard input handle. Echoing cannot be disabled\n",
                          logging::Severity::WARN);
             return;
         }
 
         if (!GetConsoleMode(hStdin, &old_mode)) {
-            logging::log("Failed to retrieve console mode. Echoing cannot be disabled",
+            logging::log("Failed to retrieve console mode. Echoing cannot be disabled\n",
                          logging::Severity::WARN);
             return;
         }
 
         if (!SetConsoleMode(hStdin, old_mode & (~ENABLE_ECHO_INPUT))) {
-            logging::log("Failed to set console mode. Echoing cannot be disabled",
+            logging::log("Failed to set console mode. Echoing cannot be disabled\n",
                          logging::Severity::WARN);
             return;
         }
@@ -49,7 +49,7 @@ struct TerminalGuard {
     ~TerminalGuard() {
         if (valid) {
             if (!SetConsoleMode(hStdin, old_mode)) {
-                logging::log("Failed to set console mode. Echoing cannot be re-enabled",
+                logging::log("Failed to set console mode. Echoing cannot be re-enabled\n",
                              logging::Severity::WARN);
             }
         }
@@ -68,14 +68,14 @@ struct TerminalGuard {
    public:
     TerminalGuard() {
         if (tcgetattr(STDIN_FILENO, &old_t) == -1) {
-            logging::log("Failed to get console mode. Echoing cannot be disabled",
+            logging::log("Failed to get console mode. Echoing cannot be disabled\n",
                          logging::Severity::WARN);
             return;
         }
         termios new_t = old_t;
         new_t.c_lflag &= ~static_cast<tcflag_t>(ECHO);
         if (tcsetattr(STDIN_FILENO, TCSANOW, &new_t) == -1) {
-            logging::log("Failed to set console mode. Echoing cannot be disabled",
+            logging::log("Failed to set console mode. Echoing cannot be disabled\n",
                          logging::Severity::WARN);
             return;
         }
@@ -85,7 +85,7 @@ struct TerminalGuard {
     ~TerminalGuard() {
         if (valid) {
             if (tcsetattr(STDIN_FILENO, TCSANOW, &old_t) == -1) {
-                logging::log("Failed to set console mode. Echoing cannot be disabled",
+                logging::log("Failed to set console mode. Echoing cannot be disabled\n",
                              logging::Severity::WARN);
             }
         }

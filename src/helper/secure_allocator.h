@@ -31,13 +31,13 @@ class SecureAllocator {
 #ifdef _WIN32
         bool success = VirtualLock(ptr, n * sizeof(T));
         if (!success) {
-            logging::log("Failed to lock memory. This is a security risk.",
+            logging::log("Failed to lock memory. This is a security risk.\n",
                          logging::Severity::WARN);
         }
 #else
         const int result = mlock(ptr, n * sizeof(T));
         if (result == -1) {
-            logging::log("Failed to lock memory. This is a security risk.",
+            logging::log("Failed to lock memory. This is a security risk.\n",
                          logging::Severity::WARN);
         }
 #endif
@@ -52,13 +52,13 @@ class SecureAllocator {
 #ifdef _WIN32
         bool success = VirtualLock(alloc_res.ptr, alloc_res.count);
         if (!success) {
-            logging::log("Failed to lock memory. This is a security risk.",
+            logging::log("Failed to lock memory. This is a security risk.\n",
                          logging::Severity::WARN);
         }
 #else
         const int result = mlock(alloc_res.ptr, alloc_res.count);
         if (result == -1) {
-            logging::log("Failed to lock memory. This is a security risk.",
+            logging::log("Failed to lock memory. This is a security risk.\n",
                          logging::Severity::WARN);
         }
 #endif
@@ -72,14 +72,14 @@ class SecureAllocator {
         bool success = VirtualUnlock(ptr, n * sizeof(T));
         if (!success) {
             logging::log(
-                "Failed to unlock memory. This should not matter as it's about to be deleted.",
+                "Failed to unlock memory. This should not matter as it's about to be deleted.\n",
                 logging::Severity::WARN);
         }
 #else
         const int result = munlock(ptr, n * sizeof(T));
         if (result == -1) {
             logging::log(
-                "Failed to unlock memory. This should not matter as it's about to be deleted.",
+                "Failed to unlock memory. This should not matter as it's about to be deleted.\n",
                 logging::Severity::WARN);
         }
 #endif

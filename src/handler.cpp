@@ -43,7 +43,7 @@ std::expected<void, Result> parse(std::span<const std::string_view> args) {
         return dispatch(DecryptRequest{.request = shared});
     }
 
-    const Result unexpected_result{.message = "Tool not found", .success = false};
+    const Result unexpected_result{.message = "Tool not found\n", .success = false};
     logging::log_result(unexpected_result);
     return std::unexpected(unexpected_result);
 }

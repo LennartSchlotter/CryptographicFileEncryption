@@ -18,14 +18,14 @@ int main(int argc, const char* argv[]) {
 
         // Verify argument count
         if (argc <= 2) {
-            logging::log_result(Result{.message = "Too few arguments passed", .success = false});
+            logging::log_result(Result{.message = "Too few arguments passed.\n", .success = false});
             return EXIT_FAILURE;
         }
 
         // Initialize external libraries
         if (sodium_init() < 0) {
             logging::log_result(
-                Result{.message = "libsodium initialization failed.", .success = false});
+                Result{.message = "libsodium initialization failed.\n", .success = false});
             return EXIT_FAILURE;
         }
 
@@ -41,7 +41,7 @@ int main(int argc, const char* argv[]) {
         logging::log_result(Result{.message = e.what(), .success = false});
         return EXIT_FAILURE;
     } catch (...) {
-        logging::log_result(Result{.message = "Unknown exception", .success = false});
+        logging::log_result(Result{.message = "Unknown exception.\n", .success = false});
         return EXIT_FAILURE;
     }
 }
