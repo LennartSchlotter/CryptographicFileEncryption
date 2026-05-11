@@ -2,6 +2,7 @@
 #include <sodium/crypto_aead_chacha20poly1305.h>
 #include <sodium/crypto_box.h>
 #include <sodium/crypto_kem.h>
+
 #include <utility>
 
 #include "handler.h"
