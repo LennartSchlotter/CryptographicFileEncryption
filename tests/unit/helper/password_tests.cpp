@@ -1,9 +1,3 @@
-//Not sure if the terminal guard is sth we can / want to test? I don't understand well enough what is happening
-//read_password:
-    //Break on /r and /n
-    //Test empty string?
-    //Make sure end result is goood
-
 #include "helper/password.h"
 #include "helper/secure_allocator.h"
 #include <gtest/gtest.h>
