@@ -179,7 +179,10 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
                 unexpected_error("Failed to create ciphertext or secret for the passed public key");
             }
         }
-        default: {
+        case CryptoAlgorithms::ChaCha20_POLY1305:
+        case CryptoAlgorithms::AES_256_GCM: {
+            // This case is not reachable. 
+            // This is enforced through the request.algorithm being passed as const reference.
             std::unreachable();
             break;
         }
@@ -289,7 +292,9 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
         }
         // There are only 3 other algorithms.
         // 2 asymmetric ones, where this defaults to AES and AES itself.
-        default: {
+        case CryptoAlgorithms::ECDH_X25519:
+        case CryptoAlgorithms::ML_KEM_768:
+        case CryptoAlgorithms::AES_256_GCM: {
             if (crypto_aead_aes256gcm_is_available() == 0) {
                 unexpected_error("AES_256-GCM is not available on this CPU.");
             }
