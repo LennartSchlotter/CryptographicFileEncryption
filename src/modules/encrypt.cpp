@@ -261,8 +261,7 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
     std::vector<unsigned char, SecureAllocator<unsigned char>> encrypted_file_content;
     encrypted_file_content.reserve(anticipated_ciphertext_length);
     std::vector<char, SecureAllocator<char>> encrypted_file_content_char;
-    std::ranges::transform(encrypted_file_content, encrypted_file_content_char.begin(),
-                           [](unsigned char character) { return static_cast<char>(character); });
+    encrypted_file_content_char.reserve(anticipated_ciphertext_length);
     unsigned long long encrypted_length = 0;  // NOLINT: API requires unsigned long long
 
     // Encrypt with passed algorithm, if the passed algorithm is asymmetric, default to AES_256
@@ -270,6 +269,9 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
     switch (request.algorithm) {
         case CryptoAlgorithms::ChaCha20_POLY1305: {
             int64_t offset = 0;
+            anticipated_ciphertext_length += crypto_aead_chacha20poly1305_ABYTES;
+            encrypted_file_content.resize(anticipated_ciphertext_length);
+            encrypted_file_content_char.resize(anticipated_ciphertext_length);
             if (is_asymmetric(request.algorithm)) {
                 offset = ASYMMETRIC_IV_INDEX;
                 auto iv_span = std::span(encrypted_file_content.begin() + offset,
@@ -282,8 +284,6 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
                 iv.assign(iv_span.begin(), iv_span.end());
             }
 
-            anticipated_ciphertext_length += crypto_aead_chacha20poly1305_ABYTES;
-            encrypted_file_content.resize(anticipated_ciphertext_length);
             if (crypto_aead_chacha20poly1305_encrypt(
                     encrypted_file_content.data(), &encrypted_length, original_file_content.data(),
                     original_file_content.size(), header.data(), header.size(), nullptr, iv.data(),
@@ -305,6 +305,7 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
 
             anticipated_ciphertext_length += crypto_aead_aes256gcm_ABYTES;
             encrypted_file_content.resize(anticipated_ciphertext_length);
+            encrypted_file_content_char.resize(anticipated_ciphertext_length);
             int64_t offset = 0;
             if (is_asymmetric(request.algorithm)) {
                 offset = ASYMMETRIC_IV_INDEX;
@@ -336,6 +337,9 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
     if (!file) {
         unexpected_error("Failed to open file created at output path.");
     }
+
+    std::ranges::transform(encrypted_file_content, encrypted_file_content_char.begin(),
+                        [](unsigned char character) { return static_cast<char>(character); });
 
     file.write(encrypted_file_content_char.data(),
                static_cast<std::streamsize>(encrypted_file_content_char.size()));
