@@ -257,7 +257,9 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
         temp_buffer, original_file_content.begin(),
         [](char character) -> unsigned char { return static_cast<unsigned char>(character); });
 
+    size_t anticipated_ciphertext_length = original_file_content.size();
     std::vector<unsigned char, SecureAllocator<unsigned char>> encrypted_file_content;
+    encrypted_file_content.reserve(anticipated_ciphertext_length);
     std::vector<char, SecureAllocator<char>> encrypted_file_content_char;
     std::ranges::transform(encrypted_file_content, encrypted_file_content_char.begin(),
                            [](unsigned char character) { return static_cast<char>(character); });
@@ -280,6 +282,8 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
                 iv.assign(iv_span.begin(), iv_span.end());
             }
 
+            anticipated_ciphertext_length += crypto_aead_chacha20poly1305_ABYTES;
+            encrypted_file_content.resize(anticipated_ciphertext_length);
             if (crypto_aead_chacha20poly1305_encrypt(
                     encrypted_file_content.data(), &encrypted_length, original_file_content.data(),
                     original_file_content.size(), header.data(), header.size(), nullptr, iv.data(),
@@ -299,6 +303,8 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
                 unexpected_error("AES_256-GCM is not available on this CPU.");
             }
 
+            anticipated_ciphertext_length += crypto_aead_aes256gcm_ABYTES;
+            encrypted_file_content.resize(anticipated_ciphertext_length);
             int64_t offset = 0;
             if (is_asymmetric(request.algorithm)) {
                 offset = ASYMMETRIC_IV_INDEX;
