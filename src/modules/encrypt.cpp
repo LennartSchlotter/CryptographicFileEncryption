@@ -181,7 +181,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
         }
         case CryptoAlgorithms::ChaCha20_POLY1305:
         case CryptoAlgorithms::AES_256_GCM: {
-            // This case is not reachable. 
+            // This case is not reachable.
             // This is enforced through the request.algorithm being passed as const reference.
             std::unreachable();
             break;
@@ -339,7 +339,7 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
     }
 
     std::ranges::transform(encrypted_file_content, encrypted_file_content_char.begin(),
-                        [](unsigned char character) { return static_cast<char>(character); });
+                           [](unsigned char character) { return static_cast<char>(character); });
 
     file.write(encrypted_file_content_char.data(),
                static_cast<std::streamsize>(encrypted_file_content_char.size()));

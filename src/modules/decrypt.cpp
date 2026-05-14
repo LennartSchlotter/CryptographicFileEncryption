@@ -210,7 +210,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
         }
         case CryptoAlgorithms::ChaCha20_POLY1305:
         case CryptoAlgorithms::AES_256_GCM: {
-            // This case is not reachable. 
+            // This case is not reachable.
             // This is enforced through the request.algorithm being passed as const reference.
             std::unreachable();
             break;
