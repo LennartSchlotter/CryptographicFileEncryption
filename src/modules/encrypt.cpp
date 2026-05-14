@@ -341,6 +341,11 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
     std::ranges::transform(encrypted_file_content, encrypted_file_content_char.begin(),
                            [](unsigned char character) { return static_cast<char>(character); });
 
+    std::vector<char, SecureAllocator<char>> header_char(header.size());
+    std::ranges::transform(header, header_char.begin(),
+                        [](unsigned char character) { return static_cast<char>(character); });
+
+    file.write(header_char.data(), static_cast<std::streamsize>(header.size()));
     file.write(encrypted_file_content_char.data(),
                static_cast<std::streamsize>(encrypted_file_content_char.size()));
 }
