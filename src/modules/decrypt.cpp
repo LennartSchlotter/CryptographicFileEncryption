@@ -25,7 +25,7 @@
 namespace crypto {
 Result decrypt(const DecryptRequest& request) {
     const uint8_t MAGIC_BYTES_SIZE = 8;
-    const uint8_t ALGORITHM_INDEX = 10;
+    const uint8_t ALGORITHM_INDEX = 9;
     const char AES_256_GCM_INDEX = 0x01;
     const char ChaCha20_POLY1305_INDEX = 0x02;
     const char ECDH_X25519_INDEX = 0x10;
@@ -98,12 +98,12 @@ Result decrypt(const DecryptRequest& request) {
 std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(
     const std::vector<char, SecureAllocator<char>>& encrypted_file_content) {
     const uint8_t SALT_OFFSET = 10;
-    const size_t SALT_SIZE = 16;
-    const uint8_t TIME_OFFSET = 26;
+    const size_t SALT_SIZE = 12;
+    const uint8_t TIME_OFFSET = 22;
     const size_t TIME_SIZE = 4;
-    const uint8_t MEMORY_OFFSET = 30;
+    const uint8_t MEMORY_OFFSET = 26;
     const size_t MEMORY_SIZE = 4;
-    const uint8_t PARALLELISM_OFFSET = 34;
+    const uint8_t PARALLELISM_OFFSET = 30;
     const size_t KEY_LENGTH = 32;
 
     // `read_password` with the passphrase
@@ -225,12 +225,13 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
              const std::vector<unsigned char, SecureAllocator<unsigned char>>& key) {
     const uint8_t IV_OFFSET = 35;
     const size_t IV_SIZE = 12;
-    const uint8_t SYMMETRIC_CIPHERTEXT_LENGTH_OFFSET = 47;
-    const uint8_t SYMMETRIC_CIPHERTEXT_OFFSET = 51;
+    const uint8_t SYMMETRIC_CIPHERTEXT_LENGTH_OFFSET = 43;
+    const uint8_t SYMMETRIC_CIPHERTEXT_OFFSET = 47;
     const uint8_t ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET_BASE = 26;
     const size_t CIPHERTEXT_LENGTH_SIZE = 4;
-    const size_t ASYMMETRIC_HEADER_SIZE = 50;
-    const size_t SYMMETRIC_HEADER_SIZE = 51;
+    const size_t SYMMETRIC_HEADER_SIZE = 47;
+    const int64_t key_length = retrieve_key_length(algorithm);
+    const int64_t ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET = ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET_BASE + key_length;
 
     unsigned long long ciphertext_len = 0;      // NOLINT: API requires long long over int64
     unsigned long long decrypted_text_len = 0;  // NOLINT: API requires long long over int64
@@ -240,8 +241,7 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
 
     // Retrieve ciphertext length
     if (is_asymmetric(algorithm)) {
-        const int64_t key_length = retrieve_key_length(algorithm);
-        auto offset = static_cast<size_t>(ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET_BASE + key_length);
+        auto offset = static_cast<size_t>(ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET);
 
         const std::span<const char> content_span(encrypted_file_content);
         std::memcpy(&ciphertext_len, content_span.data() + offset, CIPHERTEXT_LENGTH_SIZE);
@@ -269,7 +269,7 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
     // Retrieve header
     if (is_asymmetric(algorithm)) {
         header_span = std::span(encrypted_file_content.begin(),
-                                encrypted_file_content.begin() + ASYMMETRIC_HEADER_SIZE);
+                                encrypted_file_content.begin() + ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET);
     } else {
         header_span = std::span(encrypted_file_content.begin(),
                                 encrypted_file_content.begin() + SYMMETRIC_HEADER_SIZE);

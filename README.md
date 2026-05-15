@@ -33,14 +33,14 @@ Due to differing demands by the decryption algorithms, the structure differs bet
 | 0       | 8     | Magic Bytes |
 | 8       | 1     | Format Version |
 | 9       | 1     | Algorithm ID |
-| 10      | 16    | Salt |
-| 26      | 4     | Time Cost |
-| 30      | 4     | Memory Cost |
-| 34      | 1     | Parallelism |
-| 35      | 12    | IV |
-| 47      | 4     | Ciphertext Length |
-| 51      | n     | Ciphertext |
-| 51+n    | 16    | Auth tag |
+| 10      | 12    | Salt |
+| 22      | 4     | Time Cost |
+| 26      | 4     | Memory Cost |
+| 30      | 1     | Parallelism |
+| 31      | 12    | IV |
+| 43      | 4     | Ciphertext Length |
+| 47      | n     | Ciphertext |
+| 47+n    | 16    | Auth tag |
 
 #### Asymmetric
 | Offset  | Size  | Field |
