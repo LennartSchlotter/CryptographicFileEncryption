@@ -255,8 +255,7 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
 
     // Retreive ciphertext
     auto ciphertext_span = std::span(encrypted_file_content.begin() + SYMMETRIC_CIPHERTEXT_OFFSET,
-                                     encrypted_file_content.begin() + SYMMETRIC_CIPHERTEXT_OFFSET +
-                                         static_cast<int64_t>(ciphertext_len));
+                                     encrypted_file_content.end());
     std::vector<unsigned char, SecureAllocator<unsigned char>> ciphertext;
     ciphertext.assign(ciphertext_span.begin(), ciphertext_span.end());
 
@@ -296,7 +295,7 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
             }
 
             if (crypto_aead_aes256gcm_decrypt(decrypted.data(), &decrypted_text_len, nullptr,
-                                              ciphertext.data(), ciphertext_len, header.data(),
+                                              ciphertext.data(), ciphertext.size(), header.data(),
                                               header.size(), iv.data(), key.data()) != 0) {
                 unexpected_error(
                     "Failed to decrypt data. This may be due to the authentication tag being "
@@ -320,7 +319,7 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
         unexpected_error("Failed to open file created at output path.");
     }
 
-    std::vector<char, SecureAllocator<char>> decrypted_char;
+    std::vector<char, SecureAllocator<char>> decrypted_char(decrypted.size());
     std::ranges::transform(decrypted, decrypted_char.begin(),
                            [](unsigned char character) { return static_cast<char>(character); });
     file.write(decrypted_char.data(), static_cast<std::streamsize>(decrypted.size()));

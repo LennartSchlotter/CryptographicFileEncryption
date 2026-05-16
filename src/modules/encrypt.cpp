@@ -108,7 +108,13 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(
     header.insert(header.end(), iv.begin(), iv.end());
 
     const uint64_t file_size = std::filesystem::file_size(request.request.file_path);
-    auto bytes = std::bit_cast<std::array<char, sizeof(uint64_t)>>(file_size);
+
+    if (file_size > std::numeric_limits<uint32_t>::max()) {
+        unexpected_error("File too large to encrypt (max 4GB)");
+    }
+    auto stored_size = static_cast<uint32_t>(file_size);
+
+    auto bytes = std::bit_cast<std::array<char, sizeof(uint32_t)>>(stored_size);
     header.insert(header.end(), bytes.begin(), bytes.end());
 
     return derived_key;
