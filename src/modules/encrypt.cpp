@@ -280,13 +280,13 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
             encrypted_file_content_char.resize(anticipated_ciphertext_length);
             if (is_asymmetric(request.algorithm)) {
                 offset = ASYMMETRIC_IV_INDEX;
-                auto iv_span = std::span(header.begin() + offset,
-                                         header.begin() + offset + IV_LENGTH);
+                auto iv_span =
+                    std::span(header.begin() + offset, header.begin() + offset + IV_LENGTH);
                 iv.assign(iv_span.begin(), iv_span.end());
             } else {
                 offset = SYMMETRIC_IV_INDEX;
-                auto iv_span = std::span(header.begin() + offset,
-                                         header.begin() + offset + IV_LENGTH);
+                auto iv_span =
+                    std::span(header.begin() + offset, header.begin() + offset + IV_LENGTH);
                 iv.assign(iv_span.begin(), iv_span.end());
             }
 
@@ -315,13 +315,13 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
             int64_t offset = 0;
             if (is_asymmetric(request.algorithm)) {
                 offset = ASYMMETRIC_IV_INDEX;
-                auto iv_span = std::span(header.begin() + offset,
-                                         header.begin() + offset + IV_LENGTH);
+                auto iv_span =
+                    std::span(header.begin() + offset, header.begin() + offset + IV_LENGTH);
                 iv.assign(iv_span.begin(), iv_span.end());
             } else {
                 offset = SYMMETRIC_IV_INDEX;
-                auto iv_span = std::span(header.begin() + offset,
-                                         header.begin() + offset + IV_LENGTH);
+                auto iv_span =
+                    std::span(header.begin() + offset, header.begin() + offset + IV_LENGTH);
                 iv.assign(iv_span.begin(), iv_span.end());
             }
 
@@ -349,7 +349,7 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
 
     std::vector<char, SecureAllocator<char>> header_char(header.size());
     std::ranges::transform(header, header_char.begin(),
-                        [](unsigned char character) { return static_cast<char>(character); });
+                           [](unsigned char character) { return static_cast<char>(character); });
 
     file.write(header_char.data(), static_cast<std::streamsize>(header.size()));
     file.write(encrypted_file_content_char.data(),
