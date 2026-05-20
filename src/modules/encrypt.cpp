@@ -292,7 +292,7 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
 
             if (crypto_aead_chacha20poly1305_encrypt(
                     encrypted_file_content.data(), &encrypted_length, original_file_content.data(),
-                    original_file_content.size(), header.data(), header.size(), nullptr, iv.data(),
+                    file_size, header.data(), header.size(), nullptr, iv.data(),
                     key.data()) != 0) {
                 unexpected_error(
                     "Failed to encrypt data. This may be due to the authentication tag being "

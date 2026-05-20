@@ -288,6 +288,7 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
                     "Failed to decrypt data. This may be due to the authentication tag being "
                     "invalid.");
             }
+            break;
         }
         case CryptoAlgorithms::ECDH_X25519:
         case CryptoAlgorithms::ML_KEM_768:
