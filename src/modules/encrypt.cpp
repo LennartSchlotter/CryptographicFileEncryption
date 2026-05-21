@@ -31,6 +31,7 @@
 #include "helper/cryptography.h"
 #include "helper/password.h"
 #include "helper/secure_allocator.h"
+#include "logger.h"
 
 namespace crypto {
 Result encrypt(const EncryptRequest& request) {
@@ -132,7 +133,11 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
         read_password("Please enter the path of the public key of the recipient: ", false);
     using SecureString = std::basic_string<char, std::char_traits<char>, SecureAllocator<char>>;
     const SecureString file_name(public_key_path.begin(), public_key_path.end());
-    std::ifstream pk(file_name);
+    std::ifstream pk(file_name, std::ios::binary);
+
+    if (!pk.is_open() || pk.fail()) {
+        logging::log("Failed to open passed public key file.", logging::Severity::ERROR);
+    }
 
     std::vector<unsigned char, SecureAllocator<unsigned char>> recipient_pk(
         (std::istreambuf_iterator<char>(pk)), std::istreambuf_iterator<char>());
@@ -219,11 +224,13 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
 
     // Encrypted Key
     if (request.algorithm == CryptoAlgorithms::ECDH_X25519) {
-        std::ranges::transform(ephemeral_pk, header.begin(), [](unsigned char character) {
+        header.reserve(header.size() + ephemeral_pk.size());
+        std::ranges::transform(ephemeral_pk, std::back_inserter(header), [](unsigned char character) {
             return static_cast<char>(character);
         });
     } else if (request.algorithm == CryptoAlgorithms::ML_KEM_768) {
-        std::ranges::transform(kem_ciphertext, header.begin(), [](unsigned char character) {
+        header.reserve(header.size() + kem_ciphertext.size());
+        std::ranges::transform(kem_ciphertext, std::back_inserter(header), [](unsigned char character) {
             return static_cast<char>(character);
         });
     }
