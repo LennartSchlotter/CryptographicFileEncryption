@@ -98,11 +98,13 @@ struct TerminalGuard {
 };
 #endif
 
-std::vector<char, SecureAllocator<char>> read_password(const std::string& message) {
+std::vector<char, SecureAllocator<char>> read_password(const std::string& message, const bool& disable_echo) {
     static constexpr size_t kInitialPasswordCapacity = 128;
     std::cout << message << std::flush;
 
-    const TerminalGuard guard;
+    if (disable_echo) {
+        const TerminalGuard guard;
+    }
 
     std::vector<char, SecureAllocator<char>> password;
     password.reserve(kInitialPasswordCapacity);

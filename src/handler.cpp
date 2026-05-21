@@ -126,7 +126,7 @@ void help() {
         "--verbose              Start in verbose mode with enhanced logging\n"
         "-c, --cipher-algo      Specify a cipher algorithm to use. Here is a list of supported "
         "values:\n"
-        "rsa, ecdh, x25519, ml_kem, aes, chacha20\n"
+        "ecdh, ml_kem, aes, chacha20\n"
         "-o, --output           Specify a path for the output file to be written to\n"
         "--symmetric            Use symmetric encryption.\n"
         "--asymmetric           Use asymmetric encryption.\n"

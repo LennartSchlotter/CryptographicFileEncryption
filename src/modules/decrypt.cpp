@@ -108,7 +108,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(
 
     // `read_password` with the passphrase
     std::vector<char, SecureAllocator<char>> pw =
-        read_password("Please enter the passphrase to use for encryption: ");
+        read_password("Please enter the passphrase to use for encryption: ", true);
     const size_t pw_len = pw.size();
 
     // Recompute the Password using extracted data
@@ -152,7 +152,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
 
     // `read_password` with file path to key
     std::vector<char, SecureAllocator<char>> sk_path =
-        read_password("Please enter the path of the private key used to decrypt: ");
+        read_password("Please enter the path of the private key used to decrypt: ", false);
     using SecureString = std::basic_string<char, std::char_traits<char>, SecureAllocator<char>>;
     const SecureString file_name(sk_path.begin(), sk_path.end());
     std::ifstream sk(file_name);
