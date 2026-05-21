@@ -16,6 +16,7 @@ build:
 		-DCMAKE_C_COMPILER=clang-18 \
 		-DCMAKE_PREFIX_PATH=$(HOME)/libsodium
 	cmake --build $(BUILD_DIR) --parallel
+	ln -sf $(BUILD_DIR)/compile_commands.json compile_commands.json
 
 release:
 	cmake -S . -B $(RELEASE_DIR) -DCMAKE_BUILD_TYPE=Release \
