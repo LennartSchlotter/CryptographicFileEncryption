@@ -8,6 +8,7 @@
 #include <sodium/crypto_scalarmult.h>
 
 #include <algorithm>
+#include <bit>
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
@@ -165,6 +166,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
                   encrypted_file_content.begin() + KEY_LENGTH_OFFSET + KEY_LENGTH_SIZE);
     uint32_t key_length = 0;
     std::memcpy(&key_length, key_length_span.data(), key_length_span.size());
+    key_length = std::byteswap(key_length);
 
     auto key_span = std::span(encrypted_file_content.begin() + KEY_OFFSET,
                               encrypted_file_content.begin() + KEY_OFFSET + key_length);

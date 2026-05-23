@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <array>
 #include <bit>
-#include <charconv>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -127,6 +126,8 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     const size_t KEY_LENGTH = 32;
     const size_t AES_KEY_LENGTH = 32;
     const size_t IV_LENGTH = 12;
+    constexpr size_t BitsPerByte = 8;
+    constexpr uint8_t ByteMask = 0xFF;
 
     // `read_password` with file path to key
     std::vector<char, SecureAllocator<char>> public_key_path =
@@ -210,17 +211,17 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     header.emplace_back(algorithm_id);
 
     // Encrypted Key Length
-    int key_length = 0;
+    uint32_t key_length = 0;
     if (request.algorithm == CryptoAlgorithms::ECDH_X25519) {
         key_length = crypto_box_PUBLICKEYBYTES;
     } else if (request.algorithm == CryptoAlgorithms::ML_KEM_768) {
         key_length = crypto_kem_CIPHERTEXTBYTES;
     }
 
-    std::array<char, 4> key_length_str{};
-    std::to_chars(key_length_str.data(), std::next(key_length_str.data(), key_length_str.size()),
-                  key_length);
-    header.insert(header.end(), key_length_str.begin(), key_length_str.end());
+    for (size_t i = 0; i < sizeof(key_length); ++i) {
+        size_t shift_amount = (sizeof(key_length) - 1 - i) * BitsPerByte;
+        header.emplace_back(static_cast<char>((key_length >> shift_amount) & ByteMask));
+    }
 
     // Encrypted Key
     if (request.algorithm == CryptoAlgorithms::ECDH_X25519) {
