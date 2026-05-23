@@ -239,11 +239,14 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     // IV
     std::array<char, IV_LENGTH> iv{};
     randombytes_buf(iv.data(), iv.size());
-    header.insert(header.end(), header.begin(), header.end());
+    header.insert(header.end(), iv.begin(), iv.end());
 
     // Ciphertext length
     const uint64_t file_size = std::filesystem::file_size(request.request.file_path);
-    header.emplace_back(static_cast<char>(file_size));
+    for (size_t i = 0; i < sizeof(file_size); ++i) {
+        size_t shift_amount = (sizeof(file_size) - 1 - i) * BitsPerByte;
+        header.emplace_back(static_cast<char>((file_size >> shift_amount) & ByteMask));
+    }
 
     return derived_key;
 }
