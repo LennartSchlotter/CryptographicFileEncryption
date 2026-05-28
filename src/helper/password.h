@@ -10,6 +10,6 @@
 struct TerminalGuard;
 
 // Reads a key from the commandline.
-std::vector<char, SecureAllocator<char>> read_password(const std::string& message, const bool& disable_echo);
+std::vector<char, SecureAllocator<char>> read_password(const std::string& message, bool disable_echo);
 
 #endif

@@ -7,6 +7,7 @@
 #include <cstddef>
 #include <expected>
 #include <iostream>
+#include <optional>
 #include <ostream>
 #include <string>
 
@@ -98,13 +99,15 @@ struct TerminalGuard {
 };
 #endif
 
-std::vector<char, SecureAllocator<char>> read_password(const std::string& message, const bool& disable_echo) {
+std::vector<char, SecureAllocator<char>> read_password(const std::string& message, bool disable_echo) {
     static constexpr size_t kInitialPasswordCapacity = 128;
-    std::cout << message << std::flush;
 
+    std::optional<TerminalGuard> guard;
     if (disable_echo) {
-        const TerminalGuard guard;
+        guard.emplace();
     }
+
+    std::cout << message << std::flush;
 
     std::vector<char, SecureAllocator<char>> password;
     password.reserve(kInitialPasswordCapacity);
