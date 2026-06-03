@@ -65,6 +65,8 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(
     const uint32_t t_cost = 3;
     const uint32_t m_cost = 65536;
     const uint32_t parallelism = 4;
+    constexpr size_t BitsPerByte = 8;
+    constexpr uint8_t ByteMask = 0xFF;
 
     // Call to `read_password` to retrieve the passphrase
     std::vector<char, SecureAllocator<char>> pw =
@@ -112,10 +114,11 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(
     if (file_size > std::numeric_limits<uint32_t>::max()) {
         unexpected_error("File too large to encrypt (max 4GB)");
     }
-    auto stored_size = static_cast<uint32_t>(file_size);
 
-    auto bytes = std::bit_cast<std::array<char, sizeof(uint32_t)>>(stored_size);
-    header.insert(header.end(), bytes.begin(), bytes.end());
+    for (size_t i = 0; i < sizeof(file_size); ++i) {
+        size_t shift_amount = (sizeof(file_size) - 1 - i) * BitsPerByte;
+        header.emplace_back(static_cast<char>((file_size >> shift_amount) & ByteMask));
+    }
 
     return derived_key;
 }
