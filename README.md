@@ -38,9 +38,9 @@ Due to differing demands by the decryption algorithms, the structure differs bet
 | 26      | 4     | Memory Cost |
 | 30      | 1     | Parallelism |
 | 31      | 12    | IV |
-| 43      | 4     | Ciphertext Length |
-| 47      | n     | Ciphertext |
-| 47+n    | 16    | Auth tag |
+| 43      | 8     | Ciphertext Length |
+| 51      | n     | Ciphertext |
+| 51+n    | 16    | Auth tag |
 
 #### Asymmetric
 | Offset  | Size  | Field |
@@ -48,10 +48,11 @@ Due to differing demands by the decryption algorithms, the structure differs bet
 | 0       | 8     | Magic Bytes |
 | 8       | 1     | Format Version |
 | 9       | 1     | Algorithm ID |
-| 10      | 4     | Encrypted Key Length
+| 10      | 4     | Encrypted Key Length |
 | 14      | m    | Encrypted Session Key |
 | 14+m      | 12    | IV |
-| 26+m      | 4     | Ciphertext Length |
+| 26+m      | 8     | Ciphertext Length |
+| 34+m      | n     | Ciphertext |
 
 ## Additional Information
 As this is primarily a learning project, information on the development process can be found in `Development.md`
