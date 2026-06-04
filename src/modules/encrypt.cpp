@@ -150,49 +150,40 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
         crypto_box_PUBLICKEYBYTES);
     std::vector<unsigned char, SecureAllocator<unsigned char>> kem_ciphertext(
         crypto_kem_CIPHERTEXTBYTES);
+    std::vector<unsigned char, SecureAllocator<unsigned char>> shared_secret;
+    std::vector<unsigned char, SecureAllocator<unsigned char>> prk(
+        crypto_kdf_hkdf_sha256_KEYBYTES);
+    auto context = std::to_array("file-encryption-key");
 
     // Get Session Key and Encrypt it
     switch (request.algorithm) {
         case CryptoAlgorithms::ECDH_X25519: {
             std::vector<unsigned char, SecureAllocator<unsigned char>> ephemeral_sk(
                 crypto_box_PUBLICKEYBYTES);
-            std::vector<unsigned char, SecureAllocator<unsigned char>> shared_point(
-                crypto_scalarmult_BYTES);
-            std::vector<unsigned char, SecureAllocator<unsigned char>> prk(
-                crypto_kdf_hkdf_sha256_KEYBYTES);
-            auto context = std::to_array("file-encryption-key");
+            shared_secret.resize(crypto_scalarmult_BYTES);
 
             // Generate Ephemeral Keypair
-            if (crypto_box_keypair(ephemeral_pk.data(), ephemeral_sk.data()) != 0) {
+            if (crypto_kx_keypair(ephemeral_pk.data(), ephemeral_sk.data()) != 0) {
                 unexpected_error("Failed to generate a ephemeral keypair");
             }
 
             // Calculate shared point
-            if (crypto_scalarmult(shared_point.data(), ephemeral_sk.data(), recipient_pk.data()) !=
+            if (crypto_scalarmult(shared_secret.data(), ephemeral_sk.data(), recipient_pk.data()) !=
                 0) {
                 unexpected_error(
                     "Failed to calculate shared point between the ephemeral secret key and the "
                     "public key of the recipient");
             }
 
-            // Derive key from shared point
-            if (crypto_kdf_hkdf_sha256_extract(prk.data(), nullptr, 0, shared_point.data(),
-                                               shared_point.size()) != 0) {
-                unexpected_error("Failed to create master key");
-            }
-
-            if (crypto_kdf_hkdf_sha256_expand(derived_key.data(), AES_KEY_LENGTH, context.data(),
-                                              context.size(), prk.data()) != 0) {
-                unexpected_error("Failed to derive subkey from master key");
-            }
-
             break;
         }
         case CryptoAlgorithms::ML_KEM_768: {
-            if (crypto_kem_enc(kem_ciphertext.data(), derived_key.data(), recipient_pk.data()) !=
+            if (crypto_kem_enc(kem_ciphertext.data(), shared_secret.data(), recipient_pk.data()) !=
                 0) {
                 unexpected_error("Failed to create ciphertext or secret for the passed public key");
             }
+
+            break;
         }
         case CryptoAlgorithms::ChaCha20_POLY1305:
         case CryptoAlgorithms::AES_256_GCM: {
@@ -201,6 +192,17 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
             std::unreachable();
             break;
         }
+    }
+
+    // Derive key from shared point
+    if (crypto_kdf_hkdf_sha256_extract(prk.data(), nullptr, 0, shared_secret.data(),
+                                        shared_secret.size()) != 0) {
+        unexpected_error("Failed to create master key");
+    }
+
+    if (crypto_kdf_hkdf_sha256_expand(derived_key.data(), AES_KEY_LENGTH, context.data(),
+                                        context.size(), prk.data()) != 0) {
+        unexpected_error("Failed to derive subkey from master key");
     }
 
     // Write header to the result file
@@ -259,7 +261,7 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
              const std::vector<uint8_t, SecureAllocator<uint8_t>>& key) {
     const size_t IV_LENGTH = 12;
     const int64_t key_length = retrieve_key_length(request.algorithm);
-    const uint8_t SYMMETRIC_IV_INDEX = 35;
+    const uint8_t SYMMETRIC_IV_INDEX = 31;
     const int64_t ASYMMETRIC_IV_INDEX = 14 + key_length;
     std::vector<unsigned char> iv;
 
