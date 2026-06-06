@@ -288,7 +288,7 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
     if (is_asymmetric(algorithm)) {
         header_span =
             std::span(encrypted_file_content.begin(),
-                      encrypted_file_content.begin() + ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET);
+                      encrypted_file_content.begin() + ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET + ASYMMETRIC_CIPHERTEXT_LENGTH_SIZE);
     } else {
         header_span = std::span(encrypted_file_content.begin(),
                                 encrypted_file_content.begin() + SYMMETRIC_HEADER_SIZE);

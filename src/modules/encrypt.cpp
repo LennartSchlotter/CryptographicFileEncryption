@@ -159,7 +159,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     switch (request.algorithm) {
         case CryptoAlgorithms::ECDH_X25519: {
             std::vector<unsigned char, SecureAllocator<unsigned char>> ephemeral_sk(
-                crypto_box_PUBLICKEYBYTES);
+                crypto_box_SECRETKEYBYTES);
             shared_secret.resize(crypto_scalarmult_BYTES);
 
             // Generate Ephemeral Keypair
