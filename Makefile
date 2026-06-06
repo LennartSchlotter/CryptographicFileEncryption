@@ -9,7 +9,6 @@ run: build
 	./$(BUILD_DIR)/$(BINARY) $(ARGS)
 
 build:
-	rm -rf $(BUILD_DIR)
 	cmake -S . -B $(BUILD_DIR) \
 		-DCMAKE_BUILD_TYPE=Debug \
 		-DCMAKE_CXX_COMPILER=clang++-18 \
