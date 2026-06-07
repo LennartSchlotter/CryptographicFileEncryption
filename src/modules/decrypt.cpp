@@ -315,7 +315,11 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
                 unexpected_error("AES_256-GCM is not available on this CPU.");
             }
 
-            //FIXME: Asymmetric Auth Tag invalid
+            if (key.size() != crypto_aead_aes256gcm_KEYBYTES) {
+                unexpected_error("Key must be exactly 32 bytes. PEM files are not supported.\n"
+                    "Generate a raw key with: cfe keygen");
+            }
+
             if (crypto_aead_aes256gcm_decrypt(decrypted.data(), &decrypted_text_len, nullptr,
                                               ciphertext.data(), ciphertext.size(), header.data(),
                                               header.size(), iv.data(), key.data()) != 0) {

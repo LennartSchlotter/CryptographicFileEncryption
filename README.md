@@ -12,6 +12,10 @@ Please keep in mind that this is a learning project. While care has been taken i
     - key-based, asymmetric (hybrid)
         > [This is implemented in a hybrid fashion. Encryption is still done symmetrically, but with an asymmetrically encrypted key.]
 
+### Planned Features
+- Key generation
+    > [This is not implemented yet. The goal is to provide an option to serve the user the correct format for cryptographic keys required.]
+
 ## Usage
 ### Installation
 ### Commandline Help
