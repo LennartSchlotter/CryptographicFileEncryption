@@ -131,6 +131,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     const size_t IV_LENGTH = 12;
     constexpr size_t BitsPerByte = 8;
     constexpr uint8_t ByteMask = 0xFF;
+    constexpr size_t MLKEM768_CIPHERTEXTBYTES = 1088;
 
     // `read_password` with file path to key
     std::vector<char, SecureAllocator<char>> public_key_path =
@@ -149,7 +150,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     std::vector<unsigned char, SecureAllocator<unsigned char>> ephemeral_pk(
         crypto_box_PUBLICKEYBYTES);
     std::vector<unsigned char, SecureAllocator<unsigned char>> kem_ciphertext(
-        crypto_kem_CIPHERTEXTBYTES);
+        MLKEM768_CIPHERTEXTBYTES);
     std::vector<unsigned char, SecureAllocator<unsigned char>> shared_secret;
     std::vector<unsigned char, SecureAllocator<unsigned char>> prk(
         crypto_kdf_hkdf_sha256_KEYBYTES);
@@ -178,6 +179,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
             break;
         }
         case CryptoAlgorithms::ML_KEM_768: {
+            shared_secret.resize(crypto_kem_SHAREDSECRETBYTES);
             if (crypto_kem_enc(kem_ciphertext.data(), shared_secret.data(), recipient_pk.data()) !=
                 0) {
                 unexpected_error("Failed to create ciphertext or secret for the passed public key");
@@ -220,7 +222,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     if (request.algorithm == CryptoAlgorithms::ECDH_X25519) {
         key_length = crypto_box_PUBLICKEYBYTES;
     } else if (request.algorithm == CryptoAlgorithms::ML_KEM_768) {
-        key_length = crypto_kem_CIPHERTEXTBYTES;
+        key_length = MLKEM768_CIPHERTEXTBYTES;
     }
 
     for (size_t i = 0; i < sizeof(key_length); ++i) {

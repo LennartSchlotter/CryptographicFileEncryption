@@ -24,12 +24,13 @@ bool is_asymmetric(CryptoAlgorithms algorithm) {
 }
 
 int64_t retrieve_key_length(CryptoAlgorithms algorithm) {
+    constexpr size_t MLKEM768_CIPHERTEXTBYTES = 1088;
     switch (algorithm) {
         case CryptoAlgorithms::ECDH_X25519: {
             return crypto_box_PUBLICKEYBYTES;
         }
         case CryptoAlgorithms::ML_KEM_768: {
-            return crypto_kem_CIPHERTEXTBYTES;
+            return MLKEM768_CIPHERTEXTBYTES;
         }
         case CryptoAlgorithms::AES_256_GCM: {
             return crypto_aead_aes256gcm_KEYBYTES;
