@@ -34,8 +34,13 @@ struct DecryptRequest {
     SharedRequest request;
 };
 
+// A Key generation request.
+struct KeygenRequest {
+    CryptoAlgorithms algorithm = CryptoAlgorithms::ECDH_X25519;
+};
+
 // A variant over all possible kinds of requests.
-using Request = std::variant<EncryptRequest, DecryptRequest>;
+using Request = std::variant<EncryptRequest, DecryptRequest, KeygenRequest>;
 
 // Represents a result of the request.
 struct Result {

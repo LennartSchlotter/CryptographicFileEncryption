@@ -7,6 +7,7 @@
 
 #include <cstddef>
 #include <expected>
+#include <filesystem>
 #include <span>
 #include <string>
 #include <string_view>
@@ -16,15 +17,24 @@
 #include "logger.h"
 #include "modules/decrypt.h"
 #include "modules/encrypt.h"
+#include "modules/keygen.h"
 
 std::expected<void, Result> parse(std::span<const std::string_view> args) {
-    const std::string tool = std::string{args[0]};
-    const std::string input_path = std::string{args[1]};
-    std::string output_path = input_path;
     CryptoAlgorithms algorithm = CryptoAlgorithms::ECDH_X25519;
+    const std::string tool = std::string{args[0]};
+
+    const std::string input_path = std::string{args[1]};
+    std::string output_path;
+
+    if (tool == "keygen") {
+        output_path = std::filesystem::current_path();
+    } else {
+        output_path = input_path;
+    }
+    
     bool verbose = false;
 
-    auto result = parse_flags(tool, args.subspan(2), output_path, verbose, algorithm);
+    auto result = parse_flags(tool, args.subspan(1), output_path, verbose, algorithm);
 
     if (!result) {
         return result;
@@ -41,6 +51,10 @@ std::expected<void, Result> parse(std::span<const std::string_view> args) {
     }
     if (tool == "decrypt") {
         return dispatch(DecryptRequest{.request = shared});
+    }
+
+    if (tool == "keygen") {
+        return dispatch(KeygenRequest{.algorithm = algorithm});
     }
 
     const Result unexpected_result{.message = "Tool not found\n", .success = false};
@@ -62,6 +76,10 @@ std::expected<void, Result> parse_flags(std::string_view tool,
     for (auto it = args.begin(); it != args.end();) {
         auto arg = *it;
 
+        if (tool != "keygen") {
+            ++it;
+        }
+
         if (arg == "-h" || arg == "--help") {
             help();
             return {};
@@ -77,12 +95,13 @@ std::expected<void, Result> parse_flags(std::string_view tool,
             if (++it == args.end()) {
                 return unexpected_error("Output requires an argument");
             }
+
             output_path = static_cast<std::string>(*it);
             ++it;
             continue;
         }
 
-        if (tool == "encrypt" && (arg == "-c" || arg == "--cipher-algo")) {
+        if ((tool == "encrypt" || tool == "keygen") && (arg == "-c" || arg == "--cipher-algo")) {
             if (++it == args.end()) {
                 return unexpected_error("Cipher Algorithm requires an argument");
             }
@@ -90,7 +109,7 @@ std::expected<void, Result> parse_flags(std::string_view tool,
             auto found = algorithm_map.find(alg_str);
             if (found == algorithm_map.end()) {
                 return unexpected_error(
-                    "Unknown cipher algorithm. Supported algorithms include: \n ecdh, x25519_auth, "
+                    "Unknown cipher algorithm. Supported algorithms include: \n ecdh, "
                     "ml_kem, aes, chacha20");
             }
             algorithm = found->second;
@@ -111,6 +130,9 @@ std::expected<void, Result> dispatch(const Request& request) {
                                          [](const DecryptRequest& decrypt_request) -> Result {
                                              return crypto::decrypt(decrypt_request);
                                          },
+                                         [](const KeygenRequest& keygen_request) -> Result {
+                                             return crypto::keygen(keygen_request);
+                                         },
                                      },
                                      request);
     if (!result.success) {
@@ -128,8 +150,6 @@ void help() {
         "values:\n"
         "ecdh, ml_kem, aes, chacha20\n"
         "-o, --output           Specify a path for the output file to be written to\n"
-        "--symmetric            Use symmetric encryption.\n"
-        "--asymmetric           Use asymmetric encryption.\n"
         "-h, --help             Show this help message and exit.\n");
 }
 
