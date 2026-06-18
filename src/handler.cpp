@@ -49,6 +49,7 @@ std::expected<void, Result> parse(std::span<const std::string_view> args) {
     if (tool == "encrypt") {
         return dispatch(EncryptRequest{.request = shared, .algorithm = algorithm});
     }
+
     if (tool == "decrypt") {
         return dispatch(DecryptRequest{.request = shared});
     }
