@@ -66,6 +66,7 @@ add_library(CFE_lib STATIC
     src/helper/secure_memory.cpp
     src/modules/encrypt.cpp
     src/modules/decrypt.cpp
+    src/modules/keygen.cpp
 )
 
 cfe_target_options(CFE_lib)
