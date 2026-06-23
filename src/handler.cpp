@@ -70,7 +70,7 @@ std::expected<void, Result> parse_flags(std::string_view tool,
     static const std::unordered_map<std::string_view, CryptoAlgorithms> algorithm_map{
         {"ecdh", CryptoAlgorithms::ECDH_X25519},
         {"ml_kem", CryptoAlgorithms::ML_KEM_768},
-        {"aes", CryptoAlgorithms::AES_256_GCM},
+        {"aegis", CryptoAlgorithms::AEGIS_256},
         {"chacha20", CryptoAlgorithms::ChaCha20_POLY1305},
     };
 
@@ -111,7 +111,7 @@ std::expected<void, Result> parse_flags(std::string_view tool,
             if (found == algorithm_map.end()) {
                 return unexpected_error(
                     "Unknown cipher algorithm. Supported algorithms include: \n ecdh, "
-                    "ml_kem, aes, chacha20");
+                    "ml_kem, aegis, chacha20");
             }
             algorithm = found->second;
             ++it;
@@ -149,7 +149,7 @@ void help() {
         "--verbose              Start in verbose mode with enhanced logging\n"
         "-c, --cipher-algo      Specify a cipher algorithm to use. Here is a list of supported "
         "values:\n"
-        "ecdh, ml_kem, aes, chacha20\n"
+        "ecdh, ml_kem, aegis, chacha20\n"
         "-o, --output           Specify a path for the output file to be written to\n"
         "-h, --help             Show this help message and exit.\n");
 }

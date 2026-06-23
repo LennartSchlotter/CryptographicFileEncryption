@@ -13,7 +13,7 @@
 namespace crypto {
 Result keygen(const KeygenRequest& request) {
     switch (request.algorithm) {
-        case CryptoAlgorithms::AES_256_GCM:
+        case CryptoAlgorithms::AEGIS_256:
         case CryptoAlgorithms::ChaCha20_POLY1305:
         case CryptoAlgorithms::ECDH_X25519:
         case CryptoAlgorithms::ML_KEM_768:

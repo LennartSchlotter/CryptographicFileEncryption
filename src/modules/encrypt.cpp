@@ -1,7 +1,7 @@
 #include "modules/encrypt.h"
 
 #include <argon2.h>
-#include <sodium/crypto_aead_aes256gcm.h>
+#include <sodium/crypto_aead_aegis256.h>
 #include <sodium/crypto_aead_chacha20poly1305.h>
 #include <sodium/crypto_box.h>
 #include <sodium/crypto_kdf_hkdf_sha256.h>
@@ -127,7 +127,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
     const EncryptRequest& request) {
     const size_t KEY_LENGTH = 32;
-    const size_t AES_KEY_LENGTH = 32;
+    const size_t AEGIS_KEY_LENGTH = 32;
     const size_t IV_LENGTH = 12;
     constexpr size_t BitsPerByte = 8;
     constexpr uint8_t ByteMask = 0xFF;
@@ -188,7 +188,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
             break;
         }
         case CryptoAlgorithms::ChaCha20_POLY1305:
-        case CryptoAlgorithms::AES_256_GCM: {
+        case CryptoAlgorithms::AEGIS_256: {
             // This case is not reachable.
             // This is enforced through the request.algorithm being passed as const reference.
             std::unreachable();
@@ -202,7 +202,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
         unexpected_error("Failed to create master key");
     }
 
-    if (crypto_kdf_hkdf_sha256_expand(derived_key.data(), AES_KEY_LENGTH, context.data(),
+    if (crypto_kdf_hkdf_sha256_expand(derived_key.data(), AEGIS_KEY_LENGTH, context.data(),
                                         context.size(), prk.data()) != 0) {
         unexpected_error("Failed to derive subkey from master key");
     }
@@ -288,7 +288,7 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
     encrypted_file_content_char.reserve(anticipated_ciphertext_length);
     unsigned long long encrypted_length = 0;  // NOLINT: API requires unsigned long long
 
-    // Encrypt with passed algorithm, if the passed algorithm is asymmetric, default to AES_256
+    // Encrypt with passed algorithm, if the passed algorithm is asymmetric, default to AEGIS_256
     // This retains a switch case so the addition of more algorithms is easier in the future.
     switch (request.algorithm) {
         case CryptoAlgorithms::ChaCha20_POLY1305: {
@@ -319,15 +319,11 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
             break;
         }
         // There are only 3 other algorithms.
-        // 2 asymmetric ones, where this defaults to AES and AES itself.
+        // 2 asymmetric ones, where this defaults to AEGIS and AEGIS itself.
         case CryptoAlgorithms::ECDH_X25519:
         case CryptoAlgorithms::ML_KEM_768:
-        case CryptoAlgorithms::AES_256_GCM: {
-            if (crypto_aead_aes256gcm_is_available() == 0) {
-                unexpected_error("AES_256-GCM is not available on this CPU.");
-            }
-
-            anticipated_ciphertext_length += crypto_aead_aes256gcm_ABYTES;
+        case CryptoAlgorithms::AEGIS_256: {
+            anticipated_ciphertext_length += crypto_aead_aegis256_ABYTES;
             encrypted_file_content.resize(anticipated_ciphertext_length);
             encrypted_file_content_char.resize(anticipated_ciphertext_length);
             int64_t offset = 0;
@@ -343,7 +339,7 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
                 iv.assign(iv_span.begin(), iv_span.end());
             }
 
-            if (crypto_aead_aes256gcm_encrypt(
+            if (crypto_aead_aegis256_encrypt(
                     encrypted_file_content.data(), &encrypted_length, original_file_content.data(),
                     file_size, header.data(), header.size(), nullptr, iv.data(), key.data()) != 0) {
                 unexpected_error(

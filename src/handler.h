@@ -10,7 +10,7 @@
 
 // The available cryptographic algorithms this tool offers to use.
 enum class CryptoAlgorithms : std::uint8_t {
-    AES_256_GCM = 0x01,
+    AEGIS_256 = 0x01,
     ChaCha20_POLY1305 = 0x02,
     ECDH_X25519 = 0x10,
     ML_KEM_768 = 0x11,
@@ -26,7 +26,7 @@ struct SharedRequest {
 // An Encryption request.
 struct EncryptRequest {
     SharedRequest request;
-    CryptoAlgorithms algorithm = CryptoAlgorithms::AES_256_GCM;
+    CryptoAlgorithms algorithm = CryptoAlgorithms::AEGIS_256;
 };
 
 // A Decryption request.

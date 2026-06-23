@@ -1,4 +1,4 @@
-#include <sodium/crypto_aead_aes256gcm.h>
+#include <sodium/crypto_aead_aegis256.h>
 #include <sodium/crypto_aead_chacha20poly1305.h>
 #include <sodium/crypto_box.h>
 #include <sodium/crypto_kem.h>
@@ -13,7 +13,7 @@ bool is_asymmetric(CryptoAlgorithms algorithm) {
         case CryptoAlgorithms::ML_KEM_768:
             return true;
             break;
-        case CryptoAlgorithms::AES_256_GCM:
+        case CryptoAlgorithms::AEGIS_256:
         case CryptoAlgorithms::ChaCha20_POLY1305:
             return false;
             break;
@@ -32,8 +32,8 @@ int64_t retrieve_key_length(CryptoAlgorithms algorithm) {
         case CryptoAlgorithms::ML_KEM_768: {
             return MLKEM768_CIPHERTEXTBYTES;
         }
-        case CryptoAlgorithms::AES_256_GCM: {
-            return crypto_aead_aes256gcm_KEYBYTES;
+        case CryptoAlgorithms::AEGIS_256: {
+            return crypto_aead_aegis256_KEYBYTES;
         }
         case CryptoAlgorithms::ChaCha20_POLY1305:
             return crypto_aead_chacha20poly1305_KEYBYTES;

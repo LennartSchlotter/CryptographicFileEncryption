@@ -1,7 +1,7 @@
 #include "modules/decrypt.h"
 
 #include <argon2.h>
-#include <sodium/crypto_aead_aes256gcm.h>
+#include <sodium/crypto_aead_aegis256.h>
 #include <sodium/crypto_aead_chacha20poly1305.h>
 #include <sodium/crypto_kdf_hkdf_sha256.h>
 #include <sodium/crypto_kem.h>
@@ -27,7 +27,7 @@ namespace crypto {
 Result decrypt(const DecryptRequest& request) {
     const uint8_t MAGIC_BYTES_SIZE = 8;
     const uint8_t ALGORITHM_INDEX = 9;
-    const char AES_256_GCM_INDEX = 0x01;
+    const char AEGIS_256_INDEX = 0x01;
     const char ChaCha20_POLY1305_INDEX = 0x02;
     const char ECDH_X25519_INDEX = 0x10;
     const char ML_KEM_768_INDEX = 0x11;
@@ -56,11 +56,11 @@ Result decrypt(const DecryptRequest& request) {
 
     // Extract Algorithm
     const char algorithm_char = encrypted_file_content[ALGORITHM_INDEX];
-    CryptoAlgorithms algorithm = CryptoAlgorithms::AES_256_GCM;
+    CryptoAlgorithms algorithm = CryptoAlgorithms::AEGIS_256;
 
     switch (algorithm_char) {
-        case AES_256_GCM_INDEX: {
-            algorithm = CryptoAlgorithms::AES_256_GCM;
+        case AEGIS_256_INDEX: {
+            algorithm = CryptoAlgorithms::AEGIS_256;
             break;
         }
         case ChaCha20_POLY1305_INDEX: {
@@ -146,7 +146,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     const std::vector<char, SecureAllocator<char>>& encrypted_file_content,
     const CryptoAlgorithms& algorithm) {
     const size_t KEY_LENGTH = 32;
-    const size_t AES_KEY_LENGTH = 32;
+    const size_t AEGIS_KEY_LENGTH = 32;
     const uint8_t KEY_LENGTH_OFFSET = 10;
     const size_t KEY_LENGTH_SIZE = 4;
     const uint8_t KEY_OFFSET = 14;
@@ -199,7 +199,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
             break;
         }
         case CryptoAlgorithms::ChaCha20_POLY1305:
-        case CryptoAlgorithms::AES_256_GCM: {
+        case CryptoAlgorithms::AEGIS_256: {
             // This case is not reachable.
             // This is enforced through the request.algorithm being passed as const reference.
             std::unreachable();
@@ -213,7 +213,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
         unexpected_error("Failed to create master key");
     }
 
-    if (crypto_kdf_hkdf_sha256_expand(derived_key.data(), AES_KEY_LENGTH, context.data(),
+    if (crypto_kdf_hkdf_sha256_expand(derived_key.data(), AEGIS_KEY_LENGTH, context.data(),
                                         context.size(), prk.data()) != 0) {
         unexpected_error("Failed to derive subkey from master key");
     }
@@ -310,17 +310,13 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
         }
         case CryptoAlgorithms::ECDH_X25519:
         case CryptoAlgorithms::ML_KEM_768:
-        case CryptoAlgorithms::AES_256_GCM: {
-            if (crypto_aead_aes256gcm_is_available() == 0) {
-                unexpected_error("AES_256-GCM is not available on this CPU.");
-            }
-
-            if (key.size() != crypto_aead_aes256gcm_KEYBYTES) {
+        case CryptoAlgorithms::AEGIS_256: {
+            if (key.size() != crypto_aead_aegis256_KEYBYTES) {
                 unexpected_error("Key must be exactly 32 bytes. PEM files are not supported.\n"
                     "Generate a raw key with: cfe keygen");
             }
 
-            if (crypto_aead_aes256gcm_decrypt(decrypted.data(), &decrypted_text_len, nullptr,
+            if (crypto_aead_aegis256_decrypt(decrypted.data(), &decrypted_text_len, nullptr,
                                               ciphertext.data(), ciphertext.size(), header.data(),
                                               header.size(), iv.data(), key.data()) != 0) {
                 unexpected_error(

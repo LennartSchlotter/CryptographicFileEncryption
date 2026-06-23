@@ -18,7 +18,7 @@ TEST(HandlerTests, FlagsVerboseEnablesVerboseMode) {
     std::string tool = "encrypt";
     bool verbose = false;
     std::string path = "test.txt";
-    CryptoAlgorithms algorithm = CryptoAlgorithms::AES_256_GCM;
+    CryptoAlgorithms algorithm = CryptoAlgorithms::AEGIS_256;
 
     std::expected<void, Result> result = parse_flags(tool, args, path, verbose, algorithm);
 
@@ -31,7 +31,7 @@ TEST(HandlerTests, FlagsOutputChangesPath) {
     std::string tool = "encrypt";
     bool verbose = false;
     std::string path = "test.txt";
-    CryptoAlgorithms algorithm = CryptoAlgorithms::AES_256_GCM;
+    CryptoAlgorithms algorithm = CryptoAlgorithms::AEGIS_256;
 
     std::expected<void, Result> result = parse_flags(tool, args, path, verbose, algorithm);
 
@@ -44,7 +44,7 @@ TEST(HandlerTests, FlagsMissingOutputArgFails) {
     std::string tool = "encrypt";
     bool verbose = false;
     std::string path = "test.txt";
-    CryptoAlgorithms algorithm = CryptoAlgorithms::AES_256_GCM;
+    CryptoAlgorithms algorithm = CryptoAlgorithms::AEGIS_256;
 
     std::expected<void, Result> result = parse_flags(tool, args, path, verbose, algorithm);
 
@@ -56,7 +56,7 @@ TEST(HandlerTests, FlagsUnknownCipherAlgFails) {
     std::string tool = "encrypt";
     bool verbose = false;
     std::string path = "test.txt";
-    CryptoAlgorithms algorithm = CryptoAlgorithms::AES_256_GCM;
+    CryptoAlgorithms algorithm = CryptoAlgorithms::AEGIS_256;
 
     std::expected<void, Result> result = parse_flags(tool, args, path, verbose, algorithm);
 
@@ -68,7 +68,7 @@ TEST(HandlerTests, DecryptCipherPassedFails) {
     std::string tool = "decrypt";
     bool verbose = false;
     std::string path = "test.txt";
-    CryptoAlgorithms algorithm = CryptoAlgorithms::AES_256_GCM;
+    CryptoAlgorithms algorithm = CryptoAlgorithms::AEGIS_256;
 
     std::expected<void, Result> result = parse_flags(tool, args, path, verbose, algorithm);
 
@@ -93,7 +93,7 @@ INSTANTIATE_TEST_SUITE_P(
     AlgorithmTestsSuite,
     AlgorithmTestFixture,
     ::testing::Values(
-        TestParam{CryptoAlgorithms::AES_256_GCM, "aes"},
+        TestParam{CryptoAlgorithms::AEGIS_256, "aegis"},
         TestParam{CryptoAlgorithms::ChaCha20_POLY1305, "chacha20"},
         TestParam{CryptoAlgorithms::ECDH_X25519, "ecdh"},
         TestParam{CryptoAlgorithms::ML_KEM_768, "ml_kem"}
@@ -105,7 +105,7 @@ TEST(HandlerTests, UnknownFlagFails) {
     std::string tool = "encrypt";
     bool verbose = false;
     std::string path = "test.txt";
-    CryptoAlgorithms algorithm = CryptoAlgorithms::AES_256_GCM;
+    CryptoAlgorithms algorithm = CryptoAlgorithms::AEGIS_256;
 
     std::expected<void, Result> result = parse_flags(tool, args, path, verbose, algorithm);
 
