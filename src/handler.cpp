@@ -74,12 +74,14 @@ std::expected<void, Result> parse_flags(std::string_view tool,
         {"chacha20", CryptoAlgorithms::ChaCha20_POLY1305},
     };
 
-    for (auto it = args.begin(); it != args.end();) {
-        auto arg = *it;
+    auto it = args.begin();
 
-        if (tool != "keygen") {
-            ++it;
-        }
+    if (tool != "keygen") {
+        ++it;
+    }
+
+    for (;it != args.end();) {
+        auto arg = *it;
 
         if (arg == "-h" || arg == "--help") {
             help();
