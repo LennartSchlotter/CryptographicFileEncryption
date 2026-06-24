@@ -14,7 +14,7 @@ class AlgorithmTestFixture : public ::testing::TestWithParam<TestParam> {
 };
 
 TEST(HandlerTests, FlagsVerboseEnablesVerboseMode) {
-    std::vector<std::string_view> args = {"--verbose"};
+    std::vector<std::string_view> args = {"assets/test.txt", "--verbose"};
     std::string tool = "encrypt";
     bool verbose = false;
     std::string path = "test.txt";
@@ -27,7 +27,7 @@ TEST(HandlerTests, FlagsVerboseEnablesVerboseMode) {
 }
 
 TEST(HandlerTests, FlagsOutputChangesPath) {
-    std::vector<std::string_view> args = {"-o", "test2.txt"};
+    std::vector<std::string_view> args = {"assets/test.txt", "-o", "test2.txt"};
     std::string tool = "encrypt";
     bool verbose = false;
     std::string path = "test.txt";
@@ -40,7 +40,7 @@ TEST(HandlerTests, FlagsOutputChangesPath) {
 }
 
 TEST(HandlerTests, FlagsMissingOutputArgFails) {
-    std::vector<std::string_view> args = {"-o"};
+    std::vector<std::string_view> args = {"assets/test.txt", "-o"};
     std::string tool = "encrypt";
     bool verbose = false;
     std::string path = "test.txt";
@@ -52,7 +52,7 @@ TEST(HandlerTests, FlagsMissingOutputArgFails) {
 }
 
 TEST(HandlerTests, FlagsUnknownCipherAlgFails) {
-    std::vector<std::string_view> args = {"-c", "test"};
+    std::vector<std::string_view> args = {"assets/test.txt", "-c", "test"};
     std::string tool = "encrypt";
     bool verbose = false;
     std::string path = "test.txt";
@@ -64,7 +64,7 @@ TEST(HandlerTests, FlagsUnknownCipherAlgFails) {
 }
 
 TEST(HandlerTests, DecryptCipherPassedFails) {
-    std::vector<std::string_view> args = {"-c", "ml_kem"};
+    std::vector<std::string_view> args = {"assets/test.txt", "-c", "ml_kem"};
     std::string tool = "decrypt";
     bool verbose = false;
     std::string path = "test.txt";
@@ -77,7 +77,7 @@ TEST(HandlerTests, DecryptCipherPassedFails) {
 
 TEST_P(AlgorithmTestFixture, FlagsValidAlgorithmMapsCorrectly) {
     TestParam parameters = GetParam();
-    std::vector<std::string_view> args = {"-c", parameters.expectedString};
+    std::vector<std::string_view> args = {"assets/test.txt", "-c", parameters.expectedString};
     std::string tool = "encrypt";
     bool verbose = false;
     std::string path = "test.txt";
@@ -101,7 +101,7 @@ INSTANTIATE_TEST_SUITE_P(
 );
 
 TEST(HandlerTests, UnknownFlagFails) {
-    std::vector<std::string_view> args = {"--verbose_level", "severe"};
+    std::vector<std::string_view> args = {"assets/test.txt", "--verbose_level", "severe"};
     std::string tool = "encrypt";
     bool verbose = false;
     std::string path = "test.txt";
