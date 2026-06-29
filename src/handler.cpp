@@ -134,7 +134,7 @@ std::expected<void, Result> dispatch(const Request& request) {
                                              return crypto::decrypt(decrypt_request);
                                          },
                                          [](const KeygenRequest& keygen_request) -> Result {
-                                             return crypto::keygen(keygen_request);
+                                             return *crypto::keygen(keygen_request);
                                          },
                                      },
                                      request);

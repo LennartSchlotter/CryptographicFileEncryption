@@ -8,7 +8,7 @@
 namespace crypto {
 
 // Handles generating a keypair for the passed algorithm.
-Result keygen(const KeygenRequest& request);
+std::expected<Result, Result> keygen(const KeygenRequest& request);
 }  // namespace crypto
 
 #endif
