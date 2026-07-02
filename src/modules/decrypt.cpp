@@ -180,7 +180,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     auto context = std::to_array("file-encryption-key");
     switch (algorithm) {
         case CryptoAlgorithms::ECDH_X25519: {
-            shared_secret.resize(crypto_scalarmult_BYTES);
+            shared_secret.resize(crypto_scalarmult_curve25519_BYTES);
 
             // Calculate shared point
             if (crypto_scalarmult(shared_secret.data(), recipient_sk.data(), key.data()) != 0) {

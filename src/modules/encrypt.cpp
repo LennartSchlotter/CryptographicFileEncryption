@@ -220,7 +220,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     // Encrypted Key Length
     uint32_t key_length = 0;
     if (request.algorithm == CryptoAlgorithms::ECDH_X25519) {
-        key_length = crypto_box_PUBLICKEYBYTES;
+        key_length = crypto_scalarmult_curve25519_BYTES;
     } else if (request.algorithm == CryptoAlgorithms::ML_KEM_768) {
         key_length = MLKEM768_CIPHERTEXTBYTES;
     }
