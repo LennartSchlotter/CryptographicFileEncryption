@@ -152,8 +152,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     std::vector<unsigned char, SecureAllocator<unsigned char>> kem_ciphertext(
         MLKEM768_CIPHERTEXTBYTES);
     std::vector<unsigned char, SecureAllocator<unsigned char>> shared_secret;
-    std::vector<unsigned char, SecureAllocator<unsigned char>> prk(
-        crypto_kdf_hkdf_sha256_KEYBYTES);
+    std::vector<unsigned char, SecureAllocator<unsigned char>> prk(crypto_kdf_hkdf_sha256_KEYBYTES);
     auto context = std::to_array("file-encryption-key");
 
     // Get Session Key and Encrypt it
@@ -198,12 +197,12 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
 
     // Derive key from shared point
     if (crypto_kdf_hkdf_sha256_extract(prk.data(), nullptr, 0, shared_secret.data(),
-                                        shared_secret.size()) != 0) {
+                                       shared_secret.size()) != 0) {
         unexpected_error("Failed to create master key");
     }
 
     if (crypto_kdf_hkdf_sha256_expand(derived_key.data(), AEGIS_KEY_LENGTH, context.data(),
-                                        context.size(), prk.data()) != 0) {
+                                      context.size(), prk.data()) != 0) {
         unexpected_error("Failed to derive subkey from master key");
     }
 
@@ -233,14 +232,14 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     // Encrypted Key
     if (request.algorithm == CryptoAlgorithms::ECDH_X25519) {
         header.reserve(header.size() + ephemeral_pk.size());
-        std::ranges::transform(ephemeral_pk, std::back_inserter(header), [](unsigned char character) {
-            return static_cast<char>(character);
-        });
+        std::ranges::transform(
+            ephemeral_pk, std::back_inserter(header),
+            [](unsigned char character) { return static_cast<char>(character); });
     } else if (request.algorithm == CryptoAlgorithms::ML_KEM_768) {
         header.reserve(header.size() + kem_ciphertext.size());
-        std::ranges::transform(kem_ciphertext, std::back_inserter(header), [](unsigned char character) {
-            return static_cast<char>(character);
-        });
+        std::ranges::transform(
+            kem_ciphertext, std::back_inserter(header),
+            [](unsigned char character) { return static_cast<char>(character); });
     }
 
     // IV
@@ -310,8 +309,7 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
 
             if (crypto_aead_chacha20poly1305_encrypt(
                     encrypted_file_content.data(), &encrypted_length, original_file_content.data(),
-                    file_size, header.data(), header.size(), nullptr, iv.data(),
-                    key.data()) != 0) {
+                    file_size, header.data(), header.size(), nullptr, iv.data(), key.data()) != 0) {
                 unexpected_error(
                     "Failed to encrypt data. This may be due to the authentication tag being "
                     "invalid.");
@@ -339,9 +337,9 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
                 iv.assign(iv_span.begin(), iv_span.end());
             }
 
-            if (crypto_aead_aegis256_encrypt(
-                    encrypted_file_content.data(), &encrypted_length, original_file_content.data(),
-                    file_size, header.data(), header.size(), nullptr, iv.data(), key.data()) != 0) {
+            if (crypto_aead_aegis256_encrypt(encrypted_file_content.data(), &encrypted_length,
+                                          original_file_content.data(), file_size, header.data(),
+                                          header.size(), nullptr, iv.data(), key.data()) != 0) {
                 unexpected_error(
                     "Failed to encrypt data. This may be due to the authentication tag being "
                     "invalid.");

@@ -31,7 +31,7 @@ std::expected<void, Result> parse(std::span<const std::string_view> args) {
     } else {
         output_path = input_path;
     }
-    
+
     bool verbose = false;
 
     auto result = parse_flags(tool, args.subspan(1), output_path, verbose, algorithm);
@@ -80,7 +80,7 @@ std::expected<void, Result> parse_flags(std::string_view tool,
         ++it;
     }
 
-    for (;it != args.end();) {
+    for (; it != args.end();) {
         auto arg = *it;
 
         if (arg == "-h" || arg == "--help") {

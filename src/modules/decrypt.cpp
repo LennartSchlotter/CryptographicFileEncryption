@@ -175,8 +175,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     std::vector<unsigned char, SecureAllocator<unsigned char>> derived_key(KEY_LENGTH);
 
     std::vector<unsigned char, SecureAllocator<unsigned char>> shared_secret;
-    std::vector<unsigned char, SecureAllocator<unsigned char>> prk(
-        crypto_kdf_hkdf_sha256_KEYBYTES);
+    std::vector<unsigned char, SecureAllocator<unsigned char>> prk(crypto_kdf_hkdf_sha256_KEYBYTES);
     auto context = std::to_array("file-encryption-key");
     switch (algorithm) {
         case CryptoAlgorithms::ECDH_X25519: {
@@ -209,12 +208,12 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
 
     // Derive key from shared point
     if (crypto_kdf_hkdf_sha256_extract(prk.data(), nullptr, 0, shared_secret.data(),
-                                        shared_secret.size()) != 0) {
+                                       shared_secret.size()) != 0) {
         unexpected_error("Failed to create master key");
     }
 
     if (crypto_kdf_hkdf_sha256_expand(derived_key.data(), AEGIS_KEY_LENGTH, context.data(),
-                                        context.size(), prk.data()) != 0) {
+                                      context.size(), prk.data()) != 0) {
         unexpected_error("Failed to derive subkey from master key");
     }
 
@@ -236,8 +235,7 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
     const int64_t key_length = retrieve_key_length(algorithm);
     const int64_t ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET =
         ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET_BASE + key_length;
-    const int64_t ASYMMETRIC_IV_OFFSET =
-        SYMMETRIC_IV_OFFSET_BASE + key_length;
+    const int64_t ASYMMETRIC_IV_OFFSET = SYMMETRIC_IV_OFFSET_BASE + key_length;
 
     unsigned long long ciphertext_len = 0;      // NOLINT: API requires long long over int64
     unsigned long long decrypted_text_len = 0;  // NOLINT: API requires long long over int64
@@ -263,12 +261,15 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
     // Retreive ciphertext
     std::vector<unsigned char, SecureAllocator<unsigned char>> ciphertext;
     if (is_asymmetric(algorithm)) {
-        auto ciphertext_span = std::span(encrypted_file_content.begin() + ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET + ASYMMETRIC_CIPHERTEXT_LENGTH_SIZE,
-                                         encrypted_file_content.end());
+        auto ciphertext_span =
+            std::span(encrypted_file_content.begin() + ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET +
+                            ASYMMETRIC_CIPHERTEXT_LENGTH_SIZE,
+                      encrypted_file_content.end());
         ciphertext.assign(ciphertext_span.begin(), ciphertext_span.end());
     } else {
-        auto ciphertext_span = std::span(encrypted_file_content.begin() + SYMMETRIC_CIPHERTEXT_OFFSET,
-                                         encrypted_file_content.end());
+        auto ciphertext_span =
+            std::span(encrypted_file_content.begin() + SYMMETRIC_CIPHERTEXT_OFFSET,
+                      encrypted_file_content.end());
         ciphertext.assign(ciphertext_span.begin(), ciphertext_span.end());
     }
 
@@ -276,19 +277,20 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
     std::vector<unsigned char> iv;
     if (is_asymmetric(algorithm)) {
         auto iv_span = std::span(encrypted_file_content.begin() + ASYMMETRIC_IV_OFFSET,
-            encrypted_file_content.begin() + ASYMMETRIC_IV_OFFSET + IV_SIZE);
+                                 encrypted_file_content.begin() + ASYMMETRIC_IV_OFFSET + IV_SIZE);
         iv.assign(iv_span.begin(), iv_span.end());
     } else {
         auto iv_span = std::span(encrypted_file_content.begin() + SYMMETRIC_IV_OFFSET,
-            encrypted_file_content.begin() + SYMMETRIC_IV_OFFSET + IV_SIZE);
+                                 encrypted_file_content.begin() + SYMMETRIC_IV_OFFSET + IV_SIZE);
         iv.assign(iv_span.begin(), iv_span.end());
     }
 
     // Retrieve header
     if (is_asymmetric(algorithm)) {
         header_span =
-            std::span(encrypted_file_content.begin(),
-                      encrypted_file_content.begin() + ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET + ASYMMETRIC_CIPHERTEXT_LENGTH_SIZE);
+            std::span(encrypted_file_content.begin(), encrypted_file_content.begin() +
+                                                            ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET +
+                                                            ASYMMETRIC_CIPHERTEXT_LENGTH_SIZE);
     } else {
         header_span = std::span(encrypted_file_content.begin(),
                                 encrypted_file_content.begin() + SYMMETRIC_HEADER_SIZE);
@@ -312,13 +314,14 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
         case CryptoAlgorithms::ML_KEM_768:
         case CryptoAlgorithms::AEGIS_256: {
             if (key.size() != crypto_aead_aegis256_KEYBYTES) {
-                unexpected_error("Key must be exactly 32 bytes. PEM files are not supported.\n"
+                unexpected_error(
+                    "Key must be exactly 32 bytes. PEM files are not supported.\n"
                     "Generate a raw key with: cfe keygen");
             }
 
             if (crypto_aead_aegis256_decrypt(decrypted.data(), &decrypted_text_len, nullptr,
-                                              ciphertext.data(), ciphertext.size(), header.data(),
-                                              header.size(), iv.data(), key.data()) != 0) {
+                                             ciphertext.data(), ciphertext.size(), header.data(),
+                                             header.size(), iv.data(), key.data()) != 0) {
                 unexpected_error(
                     "Failed to decrypt data. This may be due to the authentication tag being "
                     "invalid.");
