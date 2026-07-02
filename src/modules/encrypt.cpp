@@ -116,7 +116,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(
     }
 
     for (size_t i = 0; i < sizeof(file_size); ++i) {
-        size_t shift_amount = (sizeof(file_size) - 1 - i) * BitsPerByte;
+        const size_t shift_amount = (sizeof(file_size) - 1 - i) * BitsPerByte;
         header.emplace_back(static_cast<char>((file_size >> shift_amount) & ByteMask));
     }
 
@@ -226,7 +226,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     }
 
     for (size_t i = 0; i < sizeof(key_length); ++i) {
-        size_t shift_amount = (sizeof(key_length) - 1 - i) * BitsPerByte;
+        const size_t shift_amount = (sizeof(key_length) - 1 - i) * BitsPerByte;
         header.emplace_back(static_cast<char>((key_length >> shift_amount) & ByteMask));
     }
 
@@ -251,7 +251,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     // Ciphertext length
     const uint64_t file_size = std::filesystem::file_size(request.request.file_path);
     for (size_t i = 0; i < sizeof(file_size); ++i) {
-        size_t shift_amount = (sizeof(file_size) - 1 - i) * BitsPerByte;
+        const size_t shift_amount = (sizeof(file_size) - 1 - i) * BitsPerByte;
         header.emplace_back(static_cast<char>((file_size >> shift_amount) & ByteMask));
     }
 
