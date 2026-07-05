@@ -2,6 +2,7 @@
 #include <sodium/crypto_aead_chacha20poly1305.h>
 #include <sodium/crypto_box.h>
 #include <sodium/crypto_kem.h>
+#include <sodium/crypto_kem_mlkem768.h>
 
 #include <utility>
 
@@ -24,13 +25,13 @@ bool is_asymmetric(CryptoAlgorithms algorithm) {
 }
 
 int64_t retrieve_key_length(CryptoAlgorithms algorithm) {
-    constexpr size_t MLKEM768_CIPHERTEXTBYTES = 1088;
     switch (algorithm) {
         case CryptoAlgorithms::ECDH_X25519: {
             return crypto_box_PUBLICKEYBYTES;
         }
         case CryptoAlgorithms::ML_KEM_768: {
-            return MLKEM768_CIPHERTEXTBYTES;
+            // This is the ciphertext size (what is stored in the header after encapsulation)
+            return crypto_kem_mlkem768_CIPHERTEXTBYTES;
         }
         case CryptoAlgorithms::AEGIS_256: {
             return crypto_aead_aegis256_KEYBYTES;
