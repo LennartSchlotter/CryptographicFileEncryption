@@ -55,7 +55,7 @@ std::expected<void, Result> parse(std::span<const std::string_view> args) {
     }
 
     if (tool == "keygen") {
-        return dispatch(KeygenRequest{.algorithm = algorithm});
+        return dispatch(KeygenRequest{.request = shared, .algorithm = algorithm});
     }
 
     const Result unexpected_result{.message = "Tool not found\n", .success = false};

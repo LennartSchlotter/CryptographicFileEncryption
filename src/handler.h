@@ -36,6 +36,7 @@ struct DecryptRequest {
 
 // A Key generation request.
 struct KeygenRequest {
+    SharedRequest request;
     CryptoAlgorithms algorithm = CryptoAlgorithms::ECDH_X25519;
 };
 
