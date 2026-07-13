@@ -1,3 +1,5 @@
+#include "cryptography.h"
+
 #include <sodium/crypto_aead_aegis256.h>
 #include <sodium/crypto_aead_chacha20poly1305.h>
 #include <sodium/crypto_box.h>
