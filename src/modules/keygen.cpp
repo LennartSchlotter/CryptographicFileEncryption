@@ -2,8 +2,8 @@
 
 #include <__expected/unexpected.h>
 #include <argon2.h>
-#include <cstdint>
 #include <fstream>
+#include <ios>
 #include <sodium/crypto_aead_aes256gcm.h>
 #include <sodium/crypto_aead_chacha20poly1305.h>
 #include <sodium/crypto_box.h>
@@ -57,21 +57,21 @@ std::expected<Result, Result> keygen(const KeygenRequest& request) {
         }
     }
 
-    const std::string pub_path = request.request.output_path + ".pub.bin";
-    const std::string priv_path = request.request.output_path + ".priv.bin";
+    const std::string pub_path = request.request.output_path + "/key" + ".pub.bin";
+    const std::string priv_path = request.request.output_path + "/key" + ".priv.bin";
 
     std::ofstream pub_file(pub_path, std::ios::binary);
     if (!pub_file.is_open()) {
         return unexpected_error("Failed to create public key file: " + pub_path);
     }
-    pub_file.write(secret_key.data(), static_cast<int64_t>(secret_key.size()));
+    pub_file.write(public_key.data(), static_cast<std::streamsize>(public_key.size()));
     pub_file.close();
 
     std::ofstream priv_file(priv_path, std::ios::binary);
     if (!priv_file.is_open()) {
         return unexpected_error("Failed to create private key file: " + priv_path);
     }
-    priv_file.write(secret_key.data(), static_cast<int64_t>(secret_key.size()));
+    priv_file.write(secret_key.data(), static_cast<std::streamsize>(secret_key.size()));
     priv_file.close();
 
     return Result{.message = "Keypair generated successfully." ,.success = true};

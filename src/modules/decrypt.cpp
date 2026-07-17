@@ -5,6 +5,7 @@
 #include <sodium/crypto_aead_chacha20poly1305.h>
 #include <sodium/crypto_kdf_hkdf_sha256.h>
 #include <sodium/crypto_kem.h>
+#include <sodium/crypto_kem_mlkem768.h>
 #include <sodium/crypto_scalarmult.h>
 
 #include <algorithm>
@@ -192,7 +193,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
         case CryptoAlgorithms::ML_KEM_768: {
             shared_secret.resize(crypto_kem_SHAREDSECRETBYTES);
 
-            if (crypto_kem_dec(shared_secret.data(), key.data(), recipient_sk.data()) != 0) {
+            if (crypto_kem_mlkem768_dec(shared_secret.data(), key.data(), recipient_sk.data()) != 0) {
                 unexpected_error("Failed to create ciphertext or secret for the passed public key");
             }
             break;
