@@ -69,9 +69,9 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(
     constexpr size_t BitsPerByte = 8;
     constexpr uint8_t ByteMask = 0xFF;
 
-    // Call to `read_password` to retrieve the passphrase
+    // Call to `read_secure` to retrieve the passphrase
     std::vector<char, SecureAllocator<char>> pw =
-        read_password("Please enter the passphrase to use for encryption: ", true);
+        read_secure("Please enter the passphrase to use for encryption: ", true);
 
     const size_t pw_len = pw.size();
 
@@ -134,9 +134,9 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     constexpr uint8_t ByteMask = 0xFF;
     constexpr size_t MLKEM768_CIPHERTEXTBYTES = 1088;
 
-    // `read_password` with file path to key
+    // `read_secure` with file path to key
     std::vector<char, SecureAllocator<char>> public_key_path =
-        read_password("Please enter the path of the public key of the recipient: ", false);
+        read_secure("Please enter the path of the public key of the recipient: ", false);
     using SecureString = std::basic_string<char, std::char_traits<char>, SecureAllocator<char>>;
     const SecureString file_name(public_key_path.begin(), public_key_path.end());
     std::ifstream pk(file_name, std::ios::binary);
@@ -180,8 +180,8 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
         }
         case CryptoAlgorithms::ML_KEM_768: {
             shared_secret.resize(crypto_kem_SHAREDSECRETBYTES);
-            if (crypto_kem_mlkem768_enc(kem_ciphertext.data(), shared_secret.data(), recipient_pk.data()) !=
-                0) {
+            if (crypto_kem_mlkem768_enc(kem_ciphertext.data(), shared_secret.data(), 
+                                        recipient_pk.data()) != 0) {
                 unexpected_error("Failed to create ciphertext or secret for the passed public key");
             }
 

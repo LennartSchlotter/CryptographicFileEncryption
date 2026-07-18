@@ -32,7 +32,6 @@ int64_t retrieve_key_length(CryptoAlgorithms algorithm) {
             return crypto_box_PUBLICKEYBYTES;
         }
         case CryptoAlgorithms::ML_KEM_768: {
-            // This is the ciphertext size (what is stored in the header after encapsulation)
             return crypto_kem_mlkem768_CIPHERTEXTBYTES;
         }
         case CryptoAlgorithms::AEGIS_256: {

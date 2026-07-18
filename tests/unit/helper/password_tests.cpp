@@ -9,7 +9,7 @@ TEST(PasswordTests, ReadPasswordTerminates) {
     const std::string expected_str = "Password1";
     const std::vector<char, SecureAllocator<char>> expected(expected_str.begin(), expected_str.end());
 
-    std::vector<char, SecureAllocator<char>> result = read_password("Enter Password: ", true);
+    std::vector<char, SecureAllocator<char>> result = read_secure("Enter Password: ", true);
     std::cin.rdbuf(old_buf);
 
     EXPECT_EQ(result, expected);
@@ -22,7 +22,7 @@ TEST(PasswordTests, ReadPasswordTerminatesWindows) {
     const std::string expected_str = "Password1";
     const std::vector<char, SecureAllocator<char>> expected(expected_str.begin(), expected_str.end());
 
-    std::vector<char, SecureAllocator<char>> result = read_password("Enter Password: ", true);
+    std::vector<char, SecureAllocator<char>> result = read_secure("Enter Password: ", true);
     std::cin.rdbuf(old_buf);
 
     EXPECT_EQ(result, expected);
@@ -35,7 +35,7 @@ TEST(PasswordTests, ReadPasswordTerminatesEOF) {
     const std::string expected_str = "Password1";
     const std::vector<char, SecureAllocator<char>> expected(expected_str.begin(), expected_str.end());
 
-    std::vector<char, SecureAllocator<char>> result = read_password("Enter Password: ", true);
+    std::vector<char, SecureAllocator<char>> result = read_secure("Enter Password: ", true);
     std::cin.rdbuf(old_buf);
 
     EXPECT_EQ(result, expected);
@@ -47,7 +47,7 @@ TEST(PasswordTests, ReadPasswordEmptyInput) {
 
     const std::vector<char, SecureAllocator<char>> expected;
 
-    std::vector<char, SecureAllocator<char>> result = read_password("Enter Password: ", true);
+    std::vector<char, SecureAllocator<char>> result = read_secure("Enter Password: ", true);
     std::cin.rdbuf(old_buf);
 
     EXPECT_EQ(result, expected);
@@ -60,7 +60,7 @@ TEST(PasswordTests, ReadPasswordHappyPath) {
     const std::string expected_str = "Password1";
     const std::vector<char, SecureAllocator<char>> expected(expected_str.begin(), expected_str.end());
 
-    std::vector<char, SecureAllocator<char>> result = read_password("Enter Password: ", true);
+    std::vector<char, SecureAllocator<char>> result = read_secure("Enter Password: ", true);
     std::cin.rdbuf(old_buf);
 
     EXPECT_EQ(result, expected);
