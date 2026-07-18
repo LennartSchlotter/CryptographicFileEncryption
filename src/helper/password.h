@@ -10,7 +10,6 @@
 struct TerminalGuard;
 
 // Securely reads a string from the command line.
-std::vector<char, SecureAllocator<char>> read_secure(const std::string& message,
-                                                       bool disable_echo);
+std::vector<char, SecureAllocator<char>> read_secure(const std::string& message, bool disable_echo);
 
 #endif

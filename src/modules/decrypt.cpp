@@ -193,7 +193,8 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
         case CryptoAlgorithms::ML_KEM_768: {
             shared_secret.resize(crypto_kem_SHAREDSECRETBYTES);
 
-            if (crypto_kem_mlkem768_dec(shared_secret.data(), key.data(), recipient_sk.data()) != 0) {
+            if (crypto_kem_mlkem768_dec(shared_secret.data(), key.data(), recipient_sk.data()) !=
+                0) {
                 unexpected_error("Failed to create ciphertext or secret for the passed public key");
             }
             break;
@@ -264,7 +265,7 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
     if (is_asymmetric(algorithm)) {
         auto ciphertext_span =
             std::span(encrypted_file_content.begin() + ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET +
-                            ASYMMETRIC_CIPHERTEXT_LENGTH_SIZE,
+                          ASYMMETRIC_CIPHERTEXT_LENGTH_SIZE,
                       encrypted_file_content.end());
         ciphertext.assign(ciphertext_span.begin(), ciphertext_span.end());
     } else {
@@ -290,8 +291,8 @@ void decrypt(const std::vector<char, SecureAllocator<char>>& encrypted_file_cont
     if (is_asymmetric(algorithm)) {
         header_span =
             std::span(encrypted_file_content.begin(), encrypted_file_content.begin() +
-                                                            ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET +
-                                                            ASYMMETRIC_CIPHERTEXT_LENGTH_SIZE);
+                                                          ASYMMETRIC_CIPHERTEXT_LENGTH_OFFSET +
+                                                          ASYMMETRIC_CIPHERTEXT_LENGTH_SIZE);
     } else {
         header_span = std::span(encrypted_file_content.begin(),
                                 encrypted_file_content.begin() + SYMMETRIC_HEADER_SIZE);

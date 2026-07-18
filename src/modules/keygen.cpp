@@ -2,8 +2,6 @@
 
 #include <__expected/unexpected.h>
 #include <argon2.h>
-#include <fstream>
-#include <ios>
 #include <sodium/crypto_aead_aes256gcm.h>
 #include <sodium/crypto_aead_chacha20poly1305.h>
 #include <sodium/crypto_box.h>
@@ -12,14 +10,16 @@
 #include <sodium/crypto_kem_mlkem768.h>
 #include <sodium/crypto_kx.h>
 #include <sodium/crypto_scalarmult.h>
+
+#include <cstring>
+#include <fstream>
+#include <ios>
 #include <vector>
 
 #include "handler.h"
-#include <cstring>
 
 namespace crypto {
 std::expected<Result, Result> keygen(const KeygenRequest& request) {
-
     std::vector<char> public_key = {};
     std::vector<char> secret_key = {};
 
@@ -41,7 +41,7 @@ std::expected<Result, Result> keygen(const KeygenRequest& request) {
             break;
         }
         case CryptoAlgorithms::ML_KEM_768: {
-            std::array<unsigned char,crypto_kem_mlkem768_PUBLICKEYBYTES> mlkem_pk = {};
+            std::array<unsigned char, crypto_kem_mlkem768_PUBLICKEYBYTES> mlkem_pk = {};
             std::array<unsigned char, crypto_kem_mlkem768_SECRETKEYBYTES> mlkem_sk = {};
 
             if (crypto_kem_mlkem768_keypair(mlkem_pk.data(), mlkem_sk.data()) != 0) {
@@ -74,6 +74,6 @@ std::expected<Result, Result> keygen(const KeygenRequest& request) {
     priv_file.write(secret_key.data(), static_cast<std::streamsize>(secret_key.size()));
     priv_file.close();
 
-    return Result{.message = "Keypair generated successfully." ,.success = true};
+    return Result{.message = "Keypair generated successfully.", .success = true};
 }
 }  // namespace crypto
