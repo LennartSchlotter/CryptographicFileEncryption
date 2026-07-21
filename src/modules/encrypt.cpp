@@ -1,5 +1,6 @@
 #include "modules/encrypt.h"
 
+#include <__expected/unexpected.h>
 #include <argon2.h>
 #include <sodium/crypto_aead_aegis256.h>
 #include <sodium/crypto_aead_chacha20poly1305.h>
@@ -31,10 +32,10 @@
 #include "helper/cryptography.h"
 #include "helper/password.h"
 #include "helper/secure_allocator.h"
-#include "logger.h"
 
 namespace crypto {
-Result encrypt(const EncryptRequest& request) {
+//FIXME: For clarity, this should have distinct result types
+std::expected<Result, Result> encrypt(const EncryptRequest& request) {
     const std::array<char, 8> file_signature = {
         0x43, 0x46, 0x45, 0x2A, 0x5F, 0x43, 0x4C, 0x49,
     };
@@ -45,19 +46,20 @@ Result encrypt(const EncryptRequest& request) {
     // Write Magic Bytes
     header.insert(header.end(), file_signature.begin(), file_signature.end());
 
-    if (is_asymmetric(request.algorithm)) {
-        key = prepare_asymmetric(header, request);
-    } else {
-        key = prepare_symmetric(header, request);
+    auto prep = is_asymmetric(request.algorithm)
+        ? prepare_asymmetric(header, request)
+        : prepare_symmetric(header, request);
+
+    if (!prep) {
+        return std::unexpected(prep.error());
     }
 
-    encrypt(header, request, key);
+    key = std::move(prep).value();
 
-    Result result_val{.message = "Successfully encrypted the file", .success = true};
-    return result_val;
+    return encrypt(header, request, key);
 }
 
-std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(
+std::expected<std::vector<uint8_t, SecureAllocator<uint8_t>>, Result> prepare_symmetric(
     std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
     const EncryptRequest& request) {
     const size_t SALT_LENGTH = 12;
@@ -86,7 +88,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(
                           derived_key.data(), derived_key.size());
 
     if (result != ARGON2_OK) {
-        unexpected_error(argon2_error_message(result));
+        return unexpected_error(argon2_error_message(result));
     }
 
     // Write header to the result file
@@ -113,7 +115,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(
     const uint64_t file_size = std::filesystem::file_size(request.request.file_path);
 
     if (file_size > std::numeric_limits<uint32_t>::max()) {
-        unexpected_error("File too large to encrypt (max 4GB)");
+        return unexpected_error("File too large to encrypt (max 4GB)");
     }
 
     for (size_t i = 0; i < sizeof(file_size); ++i) {
@@ -124,7 +126,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_symmetric(
     return derived_key;
 }
 
-std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
+std::expected<std::vector<uint8_t, SecureAllocator<uint8_t>>, Result> prepare_asymmetric(
     std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
     const EncryptRequest& request) {
     const size_t KEY_LENGTH = 32;
@@ -142,7 +144,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     std::ifstream pk(file_name, std::ios::binary);
 
     if (!pk.is_open() || pk.fail()) {
-        logging::log("Failed to open passed public key file.", logging::Severity::ERROR);
+        return unexpected_error("Failed to open passed public key file.");
     }
 
     std::vector<unsigned char, SecureAllocator<unsigned char>> recipient_pk(
@@ -165,13 +167,13 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
 
             // Generate Ephemeral Keypair
             if (crypto_kx_keypair(ephemeral_pk.data(), ephemeral_sk.data()) != 0) {
-                unexpected_error("Failed to generate a ephemeral keypair");
+                return unexpected_error("Failed to generate a ephemeral keypair");
             }
 
             // Calculate shared point
             if (crypto_scalarmult(shared_secret.data(), ephemeral_sk.data(), recipient_pk.data()) !=
                 0) {
-                unexpected_error(
+                return unexpected_error(
                     "Failed to calculate shared point between the ephemeral secret key and the "
                     "public key of the recipient");
             }
@@ -182,7 +184,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
             shared_secret.resize(crypto_kem_SHAREDSECRETBYTES);
             if (crypto_kem_mlkem768_enc(kem_ciphertext.data(), shared_secret.data(),
                                         recipient_pk.data()) != 0) {
-                unexpected_error("Failed to create ciphertext or secret for the passed public key");
+                return unexpected_error("Failed to create ciphertext or secret for the passed public key");
             }
 
             break;
@@ -199,12 +201,12 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     // Derive key from shared point
     if (crypto_kdf_hkdf_sha256_extract(prk.data(), nullptr, 0, shared_secret.data(),
                                        shared_secret.size()) != 0) {
-        unexpected_error("Failed to create master key");
+        return unexpected_error("Failed to create master key");
     }
 
     if (crypto_kdf_hkdf_sha256_expand(derived_key.data(), AEGIS_KEY_LENGTH, context.data(),
                                       context.size(), prk.data()) != 0) {
-        unexpected_error("Failed to derive subkey from master key");
+        return unexpected_error("Failed to derive subkey from master key");
     }
 
     // Write header to the result file
@@ -258,7 +260,7 @@ std::vector<uint8_t, SecureAllocator<uint8_t>> prepare_asymmetric(
     return derived_key;
 }
 
-void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
+std::expected<Result, Result> encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
              const EncryptRequest& request,
              const std::vector<uint8_t, SecureAllocator<uint8_t>>& key) {
     const size_t IV_LENGTH = 12;
@@ -273,7 +275,7 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
     std::ifstream source{request.request.file_path, std::ios::binary};
 
     if (!source.is_open()) {
-        unexpected_error("Failed to open file.");
+        return unexpected_error("Failed to open file.");
     }
 
     source.read(temp_buffer.data(), static_cast<std::streamsize>(file_size));
@@ -311,14 +313,14 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
             if (crypto_aead_chacha20poly1305_encrypt(
                     encrypted_file_content.data(), &encrypted_length, original_file_content.data(),
                     file_size, header.data(), header.size(), nullptr, iv.data(), key.data()) != 0) {
-                unexpected_error(
+                return unexpected_error(
                     "Failed to encrypt data. This may be due to the authentication tag being "
                     "invalid.");
             }
             break;
         }
         // There are only 3 other algorithms.
-        // 2 asymmetric ones, where this defaults to AEGIS and AEGIS itself.
+        // 2 asymmetric ones, where this defaults to AEGIS, and AEGIS itself.
         case CryptoAlgorithms::ECDH_X25519:
         case CryptoAlgorithms::ML_KEM_768:
         case CryptoAlgorithms::AEGIS_256: {
@@ -341,7 +343,7 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
             if (crypto_aead_aegis256_encrypt(encrypted_file_content.data(), &encrypted_length,
                                              original_file_content.data(), file_size, header.data(),
                                              header.size(), nullptr, iv.data(), key.data()) != 0) {
-                unexpected_error(
+                return unexpected_error(
                     "Failed to encrypt data. This may be due to the authentication tag being "
                     "invalid.");
             }
@@ -354,7 +356,7 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
     std::filesystem::create_directories(path.parent_path());
     std::ofstream file(path, std::ios::out | std::ios::trunc | std::ios::binary);
     if (!file) {
-        unexpected_error("Failed to open file created at output path.");
+        return unexpected_error("Failed to open file created at output path.");
     }
 
     std::ranges::transform(encrypted_file_content, encrypted_file_content_char.begin(),
@@ -367,6 +369,8 @@ void encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
     file.write(header_char.data(), static_cast<std::streamsize>(header.size()));
     file.write(encrypted_file_content_char.data(),
                static_cast<std::streamsize>(encrypted_file_content_char.size()));
+    
+    return Result {.message = "Successfully encrypted file", .success = true};
 }
 
 }  // namespace crypto

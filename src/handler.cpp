@@ -128,7 +128,7 @@ std::expected<void, Result> parse_flags(std::string_view tool,
 std::expected<void, Result> dispatch(const Request& request) {
     const Result result = std::visit(overload{
                                          [](const EncryptRequest& encrypt_request) -> Result {
-                                             return crypto::encrypt(encrypt_request);
+                                             return *crypto::encrypt(encrypt_request);
                                          },
                                          [](const DecryptRequest& decrypt_request) -> Result {
                                              return crypto::decrypt(decrypt_request);
