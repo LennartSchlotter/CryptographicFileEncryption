@@ -1,6 +1,3 @@
->[IN DEVELOPMENT]
->This project is still in development and as such not feature complete, tested or optimized. Changes are incoming daily.
-
 # Cryptographic File Encryption Tool
 A CLI tool that supports encrypting and decrypting of files. Standalone C++-CLI project primarily serving as a learning opportunity for both the language as well as cryptographic basics. 
 
@@ -15,7 +12,24 @@ Please keep in mind that this is a learning project. While care has been taken i
 
 ## Usage
 ### Installation
-### Commandline Help
+Prerequisites:
+- C++ compiler (g++ or clang++)
+- CMake
+- (Optional) Git
+
+Build from Source:
+```bash
+git clone https://github.com/LennartSchlotter/CryptographicFileEncryption.git
+cd CryptographicFileEncryption
+
+make release
+```
+
+### Usage
+```bash
+cfe <command> [options]
+```
+You may run `cfe --help` for an overview of the functionalities.
 
 ## Internal Structure
 The file created during encryption has a `.cfe` extension. This is a custom file-type that is used so that the program can store non-sensitive data for the encryption process. As such, the structure of the header is standardized to allow parsing and the magic bytes are verified prior to decryption.
