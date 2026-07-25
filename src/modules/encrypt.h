@@ -25,9 +25,9 @@ std::expected<std::vector<uint8_t, SecureAllocator<uint8_t>>, Result> prepare_as
     const EncryptRequest& request);
 
 // Encrypts the passed file using the provided algorithm and key.
-std::expected<Result, Result> encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
-             const EncryptRequest& request,
-             const std::vector<uint8_t, SecureAllocator<uint8_t>>& key);
+std::expected<Result, Result> encrypt(
+    std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
+    const EncryptRequest& request, const std::vector<uint8_t, SecureAllocator<uint8_t>>& key);
 }  // namespace crypto
 
 #endif

@@ -34,7 +34,7 @@
 #include "helper/secure_allocator.h"
 
 namespace crypto {
-//FIXME: For clarity, this should have distinct result types
+// FIXME: For clarity, this should have distinct result types
 std::expected<Result, Result> encrypt(const EncryptRequest& request) {
     const std::array<char, 8> file_signature = {
         0x43, 0x46, 0x45, 0x2A, 0x5F, 0x43, 0x4C, 0x49,
@@ -46,9 +46,8 @@ std::expected<Result, Result> encrypt(const EncryptRequest& request) {
     // Write Magic Bytes
     header.insert(header.end(), file_signature.begin(), file_signature.end());
 
-    auto prep = is_asymmetric(request.algorithm)
-        ? prepare_asymmetric(header, request)
-        : prepare_symmetric(header, request);
+    auto prep = is_asymmetric(request.algorithm) ? prepare_asymmetric(header, request)
+                                                 : prepare_symmetric(header, request);
 
     if (!prep) {
         return std::unexpected(prep.error());
@@ -184,7 +183,8 @@ std::expected<std::vector<uint8_t, SecureAllocator<uint8_t>>, Result> prepare_as
             shared_secret.resize(crypto_kem_SHAREDSECRETBYTES);
             if (crypto_kem_mlkem768_enc(kem_ciphertext.data(), shared_secret.data(),
                                         recipient_pk.data()) != 0) {
-                return unexpected_error("Failed to create ciphertext or secret for the passed public key");
+                return unexpected_error(
+                    "Failed to create ciphertext or secret for the passed public key");
             }
 
             break;
@@ -260,9 +260,9 @@ std::expected<std::vector<uint8_t, SecureAllocator<uint8_t>>, Result> prepare_as
     return derived_key;
 }
 
-std::expected<Result, Result> encrypt(std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
-             const EncryptRequest& request,
-             const std::vector<uint8_t, SecureAllocator<uint8_t>>& key) {
+std::expected<Result, Result> encrypt(
+    std::vector<unsigned char, SecureAllocator<unsigned char>>& header,
+    const EncryptRequest& request, const std::vector<uint8_t, SecureAllocator<uint8_t>>& key) {
     const size_t IV_LENGTH = 12;
     const int64_t key_length = retrieve_key_length(request.algorithm);
     const uint8_t SYMMETRIC_IV_INDEX = 31;
@@ -369,8 +369,8 @@ std::expected<Result, Result> encrypt(std::vector<unsigned char, SecureAllocator
     file.write(header_char.data(), static_cast<std::streamsize>(header.size()));
     file.write(encrypted_file_content_char.data(),
                static_cast<std::streamsize>(encrypted_file_content_char.size()));
-    
-    return Result {.message = "Successfully encrypted file", .success = true};
+
+    return Result{.message = "Successfully encrypted file", .success = true};
 }
 
 }  // namespace crypto
