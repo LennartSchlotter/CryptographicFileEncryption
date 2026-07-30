@@ -147,7 +147,13 @@ std::expected<void, Result> dispatch(const Request& request) {
 
 void help() {
     fmt::print(
-        "Options:\n"
+        "This tool aims to provide the ability to encrypt and decrypt files."
+        "To do so, prefix any command with 'cfe'\n"
+        "Following that, the available commands are:\n"
+        "encrypt, decrypt, keygen\n"
+        "Keygen requires you to pass the algorithm. Currently supported algorithms:\n"
+        "ecdh, ml_kem\n"
+        "Other Options\n"
         "--verbose              Start in verbose mode with enhanced logging\n"
         "-c, --cipher-algo      Specify a cipher algorithm to use. Here is a list of supported "
         "values:\n"
